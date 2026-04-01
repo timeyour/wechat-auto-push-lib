@@ -1,0 +1,50 @@
+# Byte-compiled / optimized
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environment
+venv/
+env/
+.env
+.env.local
+
+# Data & cache (local state)
+data/
+*.json
+!config.example.json
+*.log
+covers/
+
+# WeChat access token cache (security sensitive)
+token_cache.json
+
+# Published articles (your content)
+articles/
+drafts/
+
+# Images (generated locally)
+images/
+*.png
+*.jpg
+*.jpeg
+*.gif
+!README.md
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Test / debug
+test_*.py
+debug_*.py
+publish_*.py
+draft_*.py
+article_*.html
+article_*.md

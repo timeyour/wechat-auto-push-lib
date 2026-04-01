@@ -1,0 +1,20 @@
+# WeChat API
+wechatpy>=2.0.0
+requests>=2.31.0
+
+# RSS 解析
+feedparser>=6.0.0
+
+# HTML 内容处理
+beautifulsoup4>=4.12.0
+lxml>=4.9.0
+readability-lxml>=0.8.0
+
+# 图片处理
+Pillow>=10.0.0
+
+# 定时调度
+APScheduler>=3.10.0
+
+# 环境变量
+python-dotenv>=1.0.0
