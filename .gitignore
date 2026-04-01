@@ -1,85 +1,181 @@
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[codz]
-*$py.class
-
-# Virtual environment
-venv/
-env/
-.venv/
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-MANIFEST
-
-# Environments (sensitive)
+# Secrets & Keys
 .env
 .env.local
-.env.*
-secrets.json
-credentials.json
+.env.bak
+*.local
+*.bak
+*.pem
+*.key
+secrets/
+keys/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyd
+*.pyo
+*.pdb
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Node
+node_modules/
+
+# Local config (template is config.example.py)
+config.py
+config.local.py
+config.*.py
+
+# Cache & Temp
 token_cache.json
-
-# Data & cache (local state)
-data/
-*.json
-!config.example.json
+.cache/
+*.cache
+*.tmp
+*.temp
+tmp/
+temp/
 *.log
-covers/
 
-# Published articles (your content)
-articles/
-drafts/
-
-# Images (generated locally)
-images/
-*.png
-*.jpg
-*.jpeg
-*.gif
-
-# OS
+# IDE & OS
 .DS_Store
 Thumbs.db
-
-# IDE
 .vscode/
 .idea/
 *.swp
+*.swo
 
-# Test / debug
-test_*.py
-debug_*.py
-publish_*.py
-draft_*.py
-article_*.html
-article_*.md
+# Workbuddy
+.workbuddy/
 
-# Unit test / coverage
-.pytest_cache/
-.coverage
-htmlcov/
-.tox/
-.hypothesis/
+# Generated media
+generated-images/
+*.mp3
+*.mp4
+*.wav
+*.png
+*.jpg
+*.jpeg
+!img_fallback.py
 
-# Jupyter
-.ipynb_checkpoints/
+# Generated content (user data / drafts / compliance)
+**/*.html
+**/*.html.compliance.txt
+**/*.compliance.txt
+**/*.compliance.md
 
-# mypy / pytype
-.mypy_cache/
-.pyre/
-.pytype/
+# User articles & drafts (exclude ALL .md except corpus-playbook official playbooks)
+*.md
+!corpus-playbook/**/*.md
 
-# Ruff
-.ruff_cache/
+# theme_previews dir (generated screenshots)
+theme_previews/
+
+# generated-images dir
+generated-images/
+
+# node_modules
+node_modules/
+
+# MiroFish (embedded submodule)
+MiroFish/
+
+# __pycache__
+__pycache__/
+
+# Screenshots & debug output
+chat_list.png
+shadowbot.png
+wechat_now.png
+wechat_screen.png
+wechat_screen2.png
+wechat_screen3.png
+weread_test.png
+output.txt
+output_feishu.txt
+error.txt
+cdp_proxy_out.txt
+test_output.txt
+_import_result.txt
+_openrouter_ua.txt
+cdp_proxy_log.txt
+feishu_output.txt
+
+# Debug scripts
+check_wechat.py
+fix_wechat.py
+get_chat_list.py
+hot_ranks_simple.py
+screen.py
+screen2.py
+simulate_titles.py
+test_search.py
+test_search2.py
+test_tts.py
+test_wechat_ui.py
+test_ws.mjs
+wechat_op.py
+wechat_op2.py
+wechat_op3.py
+wechat_run.py
+wechat_send.py
+lobster_tts.py
+push_final.py
+push_v2.py
+push_v3.py
+push_with_images.py
+send_final.py
+preview_leak.py
+wechat_bot.py
+wechat-bot.js
+fix_wechat.py
+push_*.py
+_preview_*.py
+_test_add.py
+check_*.py
+_debug*.py
+_fix*.py
+_theme_screenshots.py
+_theme_preview.js
+_render_themes.js
+_render_themes.cjs
+check_themes.js
+feishu_test.py
+feishu_debug.py
+feishu_batch.py
+wechat_grabber.py
+publish_dispatch_article.py
+style_match.py
+temp_playwright.py
+tmp_hot.py
+upload_imgs.py
+_preview_gen.py
+_add_field.py
+_add_record.py
+_fields.py
+_edge_tts_test.py
+lobster.mp3
+star.mp3
+
+# Audio / media
+lobster.mp3
+star.mp3
+
+# PDF
+claude_code_analysis.pdf
+
+# JSON debug
+simulation_result.json
+
+# Bat / shell helpers (keep wenyan_render.mjs)
+preview_article.bat
+render_preview.bat
+start_cdp_proxy.bat
+start_chrome_debug.bat
+
+# corpus-playbook exclude
+corpus-playbook/corpus/
+corpus-playbook/_debug*.py
+corpus-playbook/_check*.py
+corpus-playbook/_fix*.py

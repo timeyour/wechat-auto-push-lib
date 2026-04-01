@@ -21,7 +21,7 @@
 
 ```bash
 # 克隆仓库
-git clone https://github.com/你的用户名/wechat-auto-push-lib.git
+git clone https://github.com/timeyour/wechat-auto-push-lib.git
 cd wechat-auto-push-lib
 
 # 创建虚拟环境（推荐）

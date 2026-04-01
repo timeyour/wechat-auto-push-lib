@@ -1,0 +1,9 @@
+{
+  "version": "1.0",
+  "name": "corpus-playbook",
+  "description": "语料学习 + 写作手册生成 + 改稿迭代",
+  "base_dir": "corpus-playbook",
+  "auto_update_threshold": 5,
+  "topics_count": 30,
+  "playbook_format_version": "1.0"
+}

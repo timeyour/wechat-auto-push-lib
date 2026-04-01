@@ -1,0 +1,53 @@
+{
+  "generated_at": "2026-04-01 21:38",
+  "topics": [
+    {
+      "type": "github",
+      "title": "openclaw",
+      "desc": "Your own personal AI assistant. Any OS. Any Platform. The lobster way. 🦞 ",
+      "stars": 344129,
+      "url": "https://github.com/openclaw/openclaw",
+      "topic_id": null
+    },
+    {
+      "type": "github",
+      "title": "opencode",
+      "desc": "The open source coding agent.",
+      "stars": 134405,
+      "url": "https://github.com/anomalyco/opencode",
+      "topic_id": null
+    },
+    {
+      "type": "github",
+      "title": "system-prompts-and-models-of-ai-tools",
+      "desc": "FULL Augment Code, Claude Code, Cluely, CodeBuddy, Comet, Cursor, Devin AI, Juni",
+      "stars": 133971,
+      "url": "https://github.com/x1xhlol/system-prompts-and-models-of-ai-tools",
+      "topic_id": null
+    },
+    {
+      "type": "twitter",
+      "title": "Claude Code 也算是正面回应代码泄漏的事情了，还是值得点赞👍 直面问题，没有怪到人头上，也没因此开除谁。 （哪",
+      "user": "@dotey",
+      "probability": 100,
+      "url": "https://sopilot.net/hot-tweets?tweetId=2039230364925698531",
+      "topic_id": null
+    },
+    {
+      "type": "twitter",
+      "title": "看 claude code 源码的感觉怎么说呢…… 大家记得米格 25 吗？当年以 3 马赫极速和 2 万米升限横空出世",
+      "user": "@ewind_dev",
+      "probability": 100,
+      "url": "https://sopilot.net/hot-tweets?tweetId=2039231780369420415",
+      "topic_id": null
+    },
+    {
+      "type": "twitter",
+      "title": "看了Claude code源码，我发现大厂做好软件的小秘密。（大家都知道，但不愿意说出来） ❤️ 37 🔁 4 💬 6 ",
+      "user": "@lxfater",
+      "probability": 100,
+      "url": "https://sopilot.net/hot-tweets?tweetId=2039236484864290957",
+      "topic_id": null
+    }
+  ]
+}

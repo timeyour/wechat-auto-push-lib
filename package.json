@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "edge-tts": "^1.0.1",
+    "wechaty": "^1.20.2",
+    "wechaty-puppet-wechat": "^1.18.4"
+  }
+}

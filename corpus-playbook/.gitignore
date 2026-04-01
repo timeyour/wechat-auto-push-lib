@@ -1,0 +1,7 @@
+# Personal corpus (articles)
+corpus/
+
+# Debug scripts
+_debug*.py
+_check*.py
+_fix*.py
