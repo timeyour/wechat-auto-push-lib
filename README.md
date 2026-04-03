@@ -20,26 +20,6 @@ git clone https://github.com/timeyour/wechat-auto-push-lib.git && cd wechat-auto
 [![WeChat](https://img.shields.io/badge/WeChat-Official%20Account-blue.svg)](https://mp.weixin.qq.com)
 [![CI](https://img.shields.io/github/actions/workflow/status/timeyour/wechat-auto-push-lib/ci.yml?style=flat-square)](https://github.com/timeyour/wechat-auto-push-lib/actions)
 
-> **RSS 抓取 → 内容清洗 → 封面处理 → 草稿箱**，草稿箱自动化投递，发布仍需人工审核与群发。
-
-```bash
-# 克隆
-git clone https://github.com/timeyour/wechat-auto-push-lib.git
-cd wechat-auto-push-lib
-
-# 安装
-pip install -r requirements.txt
-
-# 配置（复制 .env.example → .env，填入 AppID/AppSecret）
-cp .env.example .env
-
-# 立即运行一次（dry-run，不发布）
-python main.py --dry
-
-# 正常执行
-python main.py --once
-```
-
 ---
 
 ## 功能
