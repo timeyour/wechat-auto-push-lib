@@ -23,10 +23,9 @@ build/
 # Node
 node_modules/
 
-# Local config (template is config.example.py)
+# Local config (template is config.example.py / .env.example)
 config.py
 config.local.py
-config.*.py
 
 # Cache & Temp
 token_cache.json
@@ -72,17 +71,8 @@ generated-images/
 # theme_previews dir (generated screenshots)
 theme_previews/
 
-# generated-images dir
-generated-images/
-
-# node_modules
-node_modules/
-
 # MiroFish (embedded submodule)
 MiroFish/
-
-# __pycache__
-__pycache__/
 
 # Screenshots & debug output
 chat_list.png
@@ -102,7 +92,8 @@ _openrouter_ua.txt
 cdp_proxy_log.txt
 feishu_output.txt
 
-# Debug scripts
+# Feishu scripts with hardcoded credentials (MUST stay local, never commit)
+_feishu_*.py
 check_wechat.py
 fix_wechat.py
 get_chat_list.py

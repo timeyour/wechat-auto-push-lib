@@ -120,11 +120,14 @@ source venv/bin/activate
 # 安装依赖
 pip install -r requirements.txt
 
-# 复制配置
-copy config.example.py config.py
-# Linux/macOS
+# 配置（任选一种方式，推荐 .env）
+# 方式 A：.env 文件（推荐，自动读取）
+cp .env.example .env    # 编辑填入 AppID / AppSecret
+# 方式 B：config.py（Python 原生配置，同样读取 .env）
 cp config.example.py config.py
 ```
+
+> 两种配置方式等价，`config.example.py` 是 `dotenv` 风格的 Python 包装，底层都读 `.env`。
 
 ---
 
@@ -172,15 +175,22 @@ mp.weixin.qq.com 草稿箱（手动群发）
 ```
 .
 ├── wechat_api/              # 微信 API（Token管理、图片上传、草稿创建）
+│   └── publisher.py         # 草稿箱创建 + 图片上传
 ├── rss_sources/             # RSS 抓取模块
 ├── content_processor/       # HTML 清洗、图片处理、摘要提取
 ├── corpus-playbook/         # 语料库配置（选题/风格学习），可选
+├── wechat_v2.py             # 微信 API v2 客户端
 ├── wenyan_render.mjs        # wenyan-cli 排版引擎（可选）
 ├── wenyan_typesetter.py     # wenyan Python 包装
 ├── img_fallback.py          # 封面图降级生成
+├── compliance_check.py      # 16项合规检查（命令行工具）
+├── add_images.py            # HTML 内嵌 Base64 图片处理
+├── theme_select.mjs        # 主题选择器（wenyan 配套）
+├── theme_config.py         # 主题配置文件
 ├── scheduler.py             # 定时调度逻辑
 ├── main.py                  # 入口（定时/单次/dry-run 三种模式）
-├── .env.example             # 环境变量模板
+├── .env.example             # 环境变量模板（推荐）
+├── config.example.py        # Python 配置模板（同样读 .env）
 ├── requirements.txt
 └── README.md
 ```
