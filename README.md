@@ -18,6 +18,7 @@ git clone https://github.com/timeyour/wechat-auto-push-lib.git && cd wechat-auto
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![WeChat](https://img.shields.io/badge/WeChat-Official%20Account-blue.svg)](https://mp.weixin.qq.com)
+[![CI](https://img.shields.io/github/actions/workflow/status/timeyour/wechat-auto-push-lib/ci.yml?style=flat-square)](https://github.com/timeyour/wechat-auto-push-lib/actions)
 
 > **RSS 抓取 → 内容清洗 → 封面处理 → 草稿箱**，草稿箱自动化投递，发布仍需人工审核与群发。
 
@@ -173,11 +174,12 @@ mp.weixin.qq.com 草稿箱（手动群发）
 ├── wechat_api/              # 微信 API（Token管理、图片上传、草稿创建）
 ├── rss_sources/             # RSS 抓取模块
 ├── content_processor/       # HTML 清洗、图片处理、摘要提取
-├── corpus-playbook/        # 语料库配置（选题/风格学习）
-├── wenyan_typesetter.py     # wenyan-cli 排版引擎（可选）
-├── scheduler.py             # 定时调度逻辑
+├── corpus-playbook/         # 语料库配置（选题/风格学习），可选
+├── wenyan_render.mjs        # wenyan-cli 排版引擎（可选）
+├── wenyan_typesetter.py     # wenyan Python 包装
 ├── img_fallback.py          # 封面图降级生成
-├── config.py                # 配置文件（需自行创建）
+├── scheduler.py             # 定时调度逻辑
+├── main.py                  # 入口（定时/单次/dry-run 三种模式）
 ├── .env.example             # 环境变量模板
 ├── requirements.txt
 └── README.md
@@ -194,6 +196,6 @@ mp.weixin.qq.com 草稿箱（手动群发）
 
 ---
 
-## 许可证
+## License
 
 MIT
