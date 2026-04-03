@@ -1,11 +1,25 @@
-# 微信公众号自动推送工具
+# wechat-auto-push-lib
+
+> 公众号内容工厂的执行层：RSS 抓取 → 内容清洗 → wenyan 排版 → 草稿箱创建。
+
+> 方法层 SOP 见 [wechat-ops-sop](https://github.com/timeyour/wechat-ops-sop)
+
+---
+
+## 3 分钟开始
+
+```bash
+git clone https://github.com/timeyour/wechat-auto-push-lib.git && cd wechat-auto-push-lib && cp .env.example .env && pip install -r requirements.txt && python main.py --dry
+```
+
+---
 
 [![Stars](https://img.shields.io/github/stars/timeyour/wechat-auto-push-lib?style=social)](https://github.com/timeyour/wechat-auto-push-lib/stargazers)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![WeChat](https://img.shields.io/badge/WeChat-Official%20Account-blue.svg)](https://mp.weixin.qq.com)
 
-> **RSS 抓取 → 内容清洗 → 封面处理 → 草稿箱**，全自动、半自动、手动三种模式，适合个人公众号运营者。
+> **RSS 抓取 → 内容清洗 → 封面处理 → 草稿箱**，草稿箱自动化投递，发布仍需人工审核与群发。
 
 ```bash
 # 克隆
