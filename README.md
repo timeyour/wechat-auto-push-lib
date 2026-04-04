@@ -100,6 +100,9 @@ source venv/bin/activate
 # 安装依赖
 pip install -r requirements.txt
 
+# 可选：wenyan-cli 排版引擎（Phase 5 排版发布需要）
+npm install -g @wenyan/cli
+
 # 配置（任选一种方式，推荐 .env）
 # 方式 A：.env 文件（推荐，自动读取）
 cp .env.example .env    # 编辑填入 AppID / AppSecret
