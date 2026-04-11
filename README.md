@@ -33,6 +33,7 @@ git clone https://github.com/timeyour/wechat-auto-push-lib.git && cd wechat-auto
 - 定时调度（可配置间隔和时间段）
 - 去重机制（同一文章不重复推送）
 - wenyan-cli 排版引擎（可选）
+- 飞书多维表格记录（可选，用于运营追踪）
 
 ---
 
@@ -130,6 +131,13 @@ cp .env.example .env    # 编辑填入 AppID / AppSecret
 
 如果你想改 RSS 源、抓取频率、发布时间段，也可以直接编辑仓库内的 `config.py`。
 
+如果要把发布记录写入飞书多维表格，还需要在 `.env` 中补充：
+
+- `FEISHU_APP_ID`
+- `FEISHU_APP_SECRET`
+- `FEISHU_BITABLE_APP_TOKEN`
+- `FEISHU_BITABLE_TABLE_ID`
+
 ---
 
 ## 使用
@@ -180,6 +188,9 @@ mp.weixin.qq.com 草稿箱（手动群发）
 ├── add_images.py            # HTML 内嵌 Base64 图片处理
 ├── theme_select.mjs        # 主题选择器（wenyan 配套）
 ├── theme_config.py         # 主题配置文件
+├── _feishu_add_record.py   # 可选：写入飞书多维表格
+├── _feishu_add_field.py    # 可选：初始化飞书多维表格字段
+├── _feishu_fields.py       # 可选：查看飞书多维表格字段
 ├── scheduler.py             # 定时调度逻辑
 ├── main.py                  # 入口（定时/单次/dry-run 三种模式）
 ├── .env.example             # 环境变量模板（推荐）
@@ -198,6 +209,7 @@ mp.weixin.qq.com 草稿箱（手动群发）
 - 封面图不超过 **2MB**，建议 900×383 像素（2.35:1）
 - 草稿创建后需登录 mp.weixin.qq.com 手动点击「群发」
 - `wechat_v2.py` 只是本地桌面自动化示例；若要使用，请额外安装 `pyautogui` 和 `pyperclip`
+- 飞书脚本默认是可选的运营记录增强，不配置 `.env` 中的飞书参数也不影响主流程
 
 ---
 

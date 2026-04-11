@@ -1,22 +1,12 @@
-"""直接调API写入Claude Code文章记录"""
-import json, urllib.request, urllib.parse, ssl
+"""向飞书多维表格写入一条发布记录。"""
+import json
 from datetime import datetime
 
-APP_ID = "cli_a92162aeee799bb6"
-APP_SECRET = "DiWHmeD4ZVGpstwfoevB7cA7LwKlDpym"
-APP_TOKEN = "GJbsblKx2a6Um7syLR5cO0WNnOg"
-TABLE_ID = "tblLYHPmJe6lDxGv"
-BASE = "https://open.feishu.cn/open-apis"
+from _feishu_common import BASE, get_feishu_config, get_tenant_access_token, request_json
 
-ctx = ssl.create_default_context()
-
-# get token
-data = urllib.parse.urlencode({"app_id": APP_ID, "app_secret": APP_SECRET}).encode()
-req = urllib.request.Request(f"{BASE}/auth/v3/tenant_access_token/internal", data=data, method="POST")
-req.add_header("Content-Type", "application/x-www-form-urlencoded")
-resp = urllib.request.urlopen(req, context=ctx, timeout=15)
-token = json.loads(resp.read())["tenant_access_token"]
-print(f"Token OK")
+config = get_feishu_config()
+token = get_tenant_access_token(config["app_id"], config["app_secret"])
+print("Token OK")
 
 ts = int(datetime(2026, 3, 31).timestamp() * 1000)
 fields = {
@@ -36,19 +26,10 @@ fields = {
 }
 
 body = json.dumps({"fields": fields}).encode("utf-8")
-req = urllib.request.Request(
-    f"{BASE}/bitable/v1/apps/{APP_TOKEN}/tables/{TABLE_ID}/records",
-    data=body,
-    method="POST"
+result = request_json(
+    f"{BASE}/bitable/v1/apps/{config['app_token']}/tables/{config['table_id']}/records",
+    token,
+    method="POST",
+    body={"fields": fields},
 )
-req.add_header("Authorization", f"Bearer {token}")
-req.add_header("Content-Type", "application/json; charset=utf-8")
-
-try:
-    resp = urllib.request.urlopen(req, context=ctx, timeout=15)
-    result = json.loads(resp.read())
-    print(json.dumps(result, indent=2, ensure_ascii=False))
-except urllib.error.HTTPError as e:
-    err_body = e.read().decode("utf-8", errors="replace")
-    print(f"HTTP {e.code}")
-    print(err_body)
+print(json.dumps(result, indent=2, ensure_ascii=False))
