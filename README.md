@@ -162,7 +162,7 @@ mp.weixin.qq.com 草稿箱（手动群发）
 ├── rss_sources/             # RSS 抓取模块
 ├── content_processor/       # HTML 清洗、图片处理、摘要提取
 ├── corpus-playbook/         # 语料库配置（选题/风格学习），可选
-├── wechat_v2.py             # 微信 API v2 客户端
+├── wechat_v2.py             # pyautogui 桌面微信自动化（模拟鼠标键盘操作）
 ├── wenyan_render.mjs        # wenyan-cli 排版引擎（可选）
 ├── wenyan_typesetter.py     # wenyan Python 包装
 ├── img_fallback.py          # 封面图降级生成
