@@ -39,7 +39,7 @@ def main():
         logger = logging.getLogger(__name__)
         if not args.dry:
             logger.error("未设置 WECHAT_APPID 或 WECHAT_APPSECRET")
-            logger.error("请创建 config.py 或 .env 文件配置微信公众号凭证")
+            logger.error("请在 .env 中配置微信公众号凭证，或按需修改 config.py")
             sys.exit(1)
 
     if args.dry:

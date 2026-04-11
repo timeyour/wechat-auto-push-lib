@@ -4,6 +4,8 @@
 
 > 方法层 SOP 见 [wechat-ops-sop](https://github.com/timeyour/wechat-ops-sop)
 
+> 这不是完整 CMS，而是一个偏个人/小团队的自动化流水线：帮你把外部内容整理成公众号草稿，最终群发仍建议人工确认。
+
 ---
 
 ## 3 分钟开始
@@ -18,7 +20,6 @@ git clone https://github.com/timeyour/wechat-auto-push-lib.git && cd wechat-auto
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![WeChat](https://img.shields.io/badge/WeChat-Official%20Account-blue.svg)](https://mp.weixin.qq.com)
-[![CI](https://img.shields.io/github/actions/workflow/status/timeyour/wechat-auto-push-lib/ci.yml?style=flat-square)](https://github.com/timeyour/wechat-auto-push-lib/actions)
 
 ---
 
@@ -62,15 +63,23 @@ python main.py --dry
 
 **预期输出：**
 ```
-✅ RSS 源加载成功（共 7 个源）
-🔍 抓取中: 36氪 → 3 篇
-🔍 抓取中: 量子位 → 3 篇
-📝 草稿创建: 《文章标题》 → 成功 (media_id: xxxxx)
-📝 草稿创建: 《文章标题》 → 成功 (media_id: xxxxx)
-⏭️ 跳过（已存在）: 《文章标题》
+试运行模式 - 不创建草稿
+抓取到若干篇文章
+--- 某篇文章 ---
+  来源: 36氪 | 标签: AI/科技
+  链接: https://...
+  摘要: ...
 ```
 
+`--dry` 只验证抓取和清洗链路，不会创建草稿，也不要求先配置公众号凭证。
+
 ### Step 2：登录 mp.weixin.qq.com 草稿箱
+
+把 `.env` 里的 `WECHAT_APPID` / `WECHAT_APPSECRET` 配好后，运行：
+
+```bash
+python main.py --once
+```
 
 登录后看到草稿列表里有文章即为成功。点击预览确认：
 - 封面图是否正常显示
@@ -101,24 +110,25 @@ source venv/bin/activate
 pip install -r requirements.txt
 
 # 可选：wenyan-cli 排版引擎（Phase 5 排版发布需要）
-npm install -g @wenyan/cli
+npm install -g @wenyan-md/cli
+# 或装到当前仓库
+# npm install @wenyan-md/cli
 
-# 配置（任选一种方式，推荐 .env）
-# 方式 A：.env 文件（推荐，自动读取）
+# 配置（推荐 .env）
 cp .env.example .env    # 编辑填入 AppID / AppSecret
-# 方式 B：config.py（Python 原生配置，同样读取 .env）
-cp config.example.py config.py
 ```
 
-> 两种配置方式等价，`config.example.py` 是 `dotenv` 风格的 Python 包装，底层都读 `.env`。
+仓库已自带 `config.py`，会自动读取 `.env`。`config.example.py` 只保留作字段示例。
 
 ---
 
 ## 配置
 
-编辑 `.env` 或 `config.py`，填入微信公众号凭证：
+编辑 `.env`，填入微信公众号凭证：
 
 凭证获取：微信公众平台 → 设置 → 基本配置 → AppID / AppSecret
+
+如果你想改 RSS 源、抓取频率、发布时间段，也可以直接编辑仓库内的 `config.py`。
 
 ---
 
@@ -162,7 +172,7 @@ mp.weixin.qq.com 草稿箱（手动群发）
 ├── rss_sources/             # RSS 抓取模块
 ├── content_processor/       # HTML 清洗、图片处理、摘要提取
 ├── corpus-playbook/         # 语料库配置（选题/风格学习），可选
-├── wechat_v2.py             # pyautogui 桌面微信自动化（模拟鼠标键盘操作）
+├── wechat_v2.py             # 可选的本地桌面微信辅助脚本（不属于主流程）
 ├── wenyan_render.mjs        # wenyan-cli 排版引擎（可选）
 ├── wenyan_typesetter.py     # wenyan Python 包装
 ├── img_fallback.py          # 封面图降级生成
@@ -173,7 +183,8 @@ mp.weixin.qq.com 草稿箱（手动群发）
 ├── scheduler.py             # 定时调度逻辑
 ├── main.py                  # 入口（定时/单次/dry-run 三种模式）
 ├── .env.example             # 环境变量模板（推荐）
-├── config.example.py        # Python 配置模板（同样读 .env）
+├── config.py                # 默认配置（开箱读取 .env）
+├── config.example.py        # 配置字段示例
 ├── requirements.txt
 └── README.md
 ```
@@ -186,6 +197,7 @@ mp.weixin.qq.com 草稿箱（手动群发）
 - 未认证订阅号摘要限制约 **58 字节**，会自动截断
 - 封面图不超过 **2MB**，建议 900×383 像素（2.35:1）
 - 草稿创建后需登录 mp.weixin.qq.com 手动点击「群发」
+- `wechat_v2.py` 只是本地桌面自动化示例；若要使用，请额外安装 `pyautogui` 和 `pyperclip`
 
 ---
 

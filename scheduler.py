@@ -2,6 +2,7 @@
 定时调度引擎 - RSS 抓取 + 发布流水线
 """
 import logging
+import sys
 from datetime import datetime
 
 from apscheduler.schedulers.blocking import BlockingScheduler
@@ -13,9 +14,14 @@ from content_processor.processor import (
     clean_html, extract_text_summary, build_final_content,
     get_first_image_url, generate_default_cover,
 )
-from wechat_api.publisher import create_publisher
 
 logger = logging.getLogger(__name__)
+
+
+def _safe_console_text(text: str) -> str:
+    """避免 Windows 默认控制台编码导致试运行输出中断。"""
+    encoding = getattr(sys.stdout, "encoding", None) or "utf-8"
+    return text.encode(encoding, errors="replace").decode(encoding, errors="replace")
 
 
 def process_article(publisher, article: Article) -> bool:
@@ -101,6 +107,7 @@ def run_once():
         return
 
     try:
+        from wechat_api.publisher import create_publisher
         publisher = create_publisher()
     except ValueError as e:
         logger.error(f"发布器初始化失败: {e}")
@@ -153,9 +160,9 @@ def run_dry():
         cleaned = clean_html(article.content)
         digest = extract_text_summary(cleaned)
         cover = article.cover_url or get_first_image_url(article.content)
-        print(f"\n--- {article.title} ---")
-        print(f"  来源: {article.source_name} | 标签: {article.tag}")
-        print(f"  链接: {article.link}")
-        print(f"  摘要: {digest}")
-        print(f"  封面: {cover or '(无)'}")
-        print(f"  正文长度: {len(cleaned)} 字符")
+        print(_safe_console_text(f"\n--- {article.title} ---"))
+        print(_safe_console_text(f"  来源: {article.source_name} | 标签: {article.tag}"))
+        print(_safe_console_text(f"  链接: {article.link}"))
+        print(_safe_console_text(f"  摘要: {digest}"))
+        print(_safe_console_text(f"  封面: {cover or '(无)'}"))
+        print(_safe_console_text(f"  正文长度: {len(cleaned)} 字符"))

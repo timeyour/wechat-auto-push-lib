@@ -31,15 +31,44 @@ if (!theme) {
   console.log("Auto theme: " + theme);
 }
 
-const wenyanCmd = "C:\\home\\cxc\\.npm-global\\wenyan.cmd";
+function runWenyan(args) {
+  const localCmd = resolve(
+    __dirname,
+    "node_modules",
+    ".bin",
+    process.platform === "win32" ? "wenyan.cmd" : "wenyan",
+  );
+  const candidates = [
+    existsSync(localCmd) ? { cmd: localCmd, args } : null,
+    { cmd: process.platform === "win32" ? "wenyan.cmd" : "wenyan", args },
+    {
+      cmd: process.platform === "win32" ? "npx.cmd" : "npx",
+      args: ["@wenyan-md/cli", ...args],
+    },
+  ].filter(Boolean);
+
+  let lastError;
+  for (const candidate of candidates) {
+    try {
+      return execFileSync(candidate.cmd, candidate.args, {
+        encoding: "utf-8",
+        timeout: 60000,
+        windowsHide: true,
+      });
+    } catch (error) {
+      lastError = error;
+    }
+  }
+
+  const detail = lastError && lastError.message ? `\n${lastError.message}` : "";
+  throw new Error(
+    "未找到可用的 wenyan-cli。请先运行 `npm install -g @wenyan-md/cli`，或在当前仓库执行 `npm install @wenyan-md/cli`。" +
+      detail,
+  );
+}
 
 try {
-  const html = execFileSync(wenyanCmd, ["render", "-f", mdFile, "-t", theme, "--no-footnote"], {
-    encoding: "utf-8",
-    timeout: 60000,
-    windowsHide: true,
-    shell: true,
-  });
+  const html = runWenyan(["render", "-f", mdFile, "-t", theme, "--no-footnote"]);
 
   // 包装成完整 HTML 页面
   const fullHtml = `<!DOCTYPE html>

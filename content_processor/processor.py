@@ -8,7 +8,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 import requests
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Comment
 
 from config import DIGEST_MAX_BYTES, FOOTER_HTML, COVER_CACHE
 
@@ -34,7 +34,7 @@ def clean_html(html_content: str) -> str:
             tag.decompose()
 
     # 移除注释
-    for comment in soup.find_all(string=lambda t: isinstance(t, BeautifulSoup.Comment)):
+    for comment in soup.find_all(string=lambda t: isinstance(t, Comment)):
         comment.extract()
 
     # 清理标签属性（只保留必要属性）

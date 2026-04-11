@@ -1,5 +1,6 @@
 # WeChat API
-wechatpy>=2.0.0
+wechatpy>=1.8.18,<2.0.0
+cryptography>=42.0.0
 requests>=2.31.0
 
 # RSS 解析

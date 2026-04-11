@@ -26,8 +26,7 @@ env/
 # Node
 node_modules/
 
-# Local config (template is config.example.py / .env.example)
-config.py
+# Local config
 config.local.py
 
 # Cache & Temp

@@ -1,11 +1,12 @@
 """
-微信公众号自动推送 - 配置示例
+微信公众号自动推送 - 默认配置
 
-仓库内已自带可直接读取 .env 的 config.py。
-这个文件只作为字段说明和自定义参考，不再是启动前置步骤。
+公开仓库自带 config.py，开箱即可读取 .env。
+如果需要保留个人覆盖项，请新建 config.local.py 或直接修改环境变量。
 """
 import os
 from pathlib import Path
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -27,17 +28,17 @@ WECHAT_APPSECRET = os.getenv("WECHAT_APPSECRET", "")
 # === RSS 源配置 ===
 # 可自行增删，每个源每次最多抓取 MAX_ARTICLES_PER_SOURCE 篇
 RSS_SOURCES = [
-    {"name": "36氪",       "url": "https://36kr.com/feed",          "tag": "AI/科技"},
-    {"name": "量子位",     "url": "https://www.qbitai.com/rss",     "tag": "AI"},
-    {"name": "机器之心",   "url": "https://www.jiqizhixin.com/rss", "tag": "AI"},
-    {"name": "少数派",     "url": "https://sspai.com/feed",         "tag": "效率工具"},
-    {"name": "虎嗅",       "url": "https://www.huxiu.com/rss/0.xml","tag": "商业"},
-    {"name": "InfoQ中文",  "url": "https://www.infoq.cn/feed",      "tag": "技术"},
-    {"name": "阮一峰",     "url": "https://www.ruanyifeng.com/blog/atom.xml", "tag": "技术"},
+    {"name": "36氪", "url": "https://36kr.com/feed", "tag": "AI/科技"},
+    {"name": "量子位", "url": "https://www.qbitai.com/rss", "tag": "AI"},
+    {"name": "机器之心", "url": "https://www.jiqizhixin.com/rss", "tag": "AI"},
+    {"name": "少数派", "url": "https://sspai.com/feed", "tag": "效率工具"},
+    {"name": "虎嗅", "url": "https://www.huxiu.com/rss/0.xml", "tag": "商业"},
+    {"name": "InfoQ中文", "url": "https://www.infoq.cn/feed", "tag": "技术"},
+    {"name": "阮一峰", "url": "https://www.ruanyifeng.com/blog/atom.xml", "tag": "技术"},
 ]
 
 # === 内容处理配置 ===
-MAX_ARTICLES_PER_SOURCE = 3   # 每个源每次最多抓取几篇
+MAX_ARTICLES_PER_SOURCE = 3    # 每个源每次最多抓取几篇
 DIGEST_MAX_BYTES = 58          # 摘要最大字节数（未认证订阅号限制约62字节）
 AUTO_DOWNLOAD_COVER = True     # 自动下载文章第一张图作为封面
 
