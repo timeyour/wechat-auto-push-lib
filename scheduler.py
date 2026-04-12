@@ -151,18 +151,42 @@ def run_dry():
     logger.info("试运行模式 - 不创建草稿")
     logger.info("=" * 60)
 
-    articles = fetch_all_sources()
-    if not articles:
+    result = collect_dry_run_preview()
+    if not result["items"]:
         logger.info("没有新文章")
         return
 
-    for article in articles:
+    for item in result["items"]:
+        print(_safe_console_text(f"\n--- {item['title']} ---"))
+        print(_safe_console_text(f"  来源: {item['source_name']} | 标签: {item['tag']}"))
+        print(_safe_console_text(f"  链接: {item['link']}"))
+        print(_safe_console_text(f"  摘要: {item['digest']}"))
+        print(_safe_console_text(f"  封面: {item['cover'] or '(无)'}"))
+        print(_safe_console_text(f"  正文长度: {item['content_length']} 字符"))
+
+
+def collect_dry_run_preview(limit: int = 8) -> dict:
+    """返回页面友好的 dry-run 结果，不创建草稿。"""
+    articles = fetch_all_sources()
+    items = []
+
+    for article in articles[:limit]:
         cleaned = clean_html(article.content)
-        digest = extract_text_summary(cleaned)
-        cover = article.cover_url or get_first_image_url(article.content)
-        print(_safe_console_text(f"\n--- {article.title} ---"))
-        print(_safe_console_text(f"  来源: {article.source_name} | 标签: {article.tag}"))
-        print(_safe_console_text(f"  链接: {article.link}"))
-        print(_safe_console_text(f"  摘要: {digest}"))
-        print(_safe_console_text(f"  封面: {cover or '(无)'}"))
-        print(_safe_console_text(f"  正文长度: {len(cleaned)} 字符"))
+        items.append(
+            {
+                "title": article.title,
+                "source_name": article.source_name,
+                "tag": article.tag,
+                "link": article.link,
+                "digest": extract_text_summary(cleaned),
+                "cover": article.cover_url or get_first_image_url(article.content),
+                "content_length": len(cleaned),
+            }
+        )
+
+    return {
+        "run_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "total_found": len(articles),
+        "displayed": len(items),
+        "items": items,
+    }

@@ -8,6 +8,18 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const CONFIG_FILE = resolve(__dirname, ".theme_selected.json");
+const THEME_LIBRARY_FILE = resolve(__dirname, "data", "theme_library.json");
+const DEFAULT_THEME = "pie";
+const BUILTIN_THEMES = new Set([
+  "default",
+  "orangeheart",
+  "rainbow",
+  "lapis",
+  "pie",
+  "maize",
+  "purple",
+  "phycat",
+]);
 
 const mdFile = process.argv[2];
 let theme = process.argv[3];
@@ -15,20 +27,40 @@ const outFile = process.argv[4];
 
 if (!mdFile || !outFile) {
   console.error("Usage: node wenyan_render.mjs <md-file> [theme] <out-html>");
-  console.error("  theme 可省略，自动读取 .theme_selected.json（由 theme_gallery.html 设置）");
+  console.error("  theme 可省略，自动读取 .theme_selected.json");
   process.exit(1);
 }
 
-// 无 theme 参数 → 读配置文件
 if (!theme) {
   theme = (() => {
-    if (!existsSync(CONFIG_FILE)) return "pie";
+    if (!existsSync(CONFIG_FILE)) return DEFAULT_THEME;
     try {
       const cfg = JSON.parse(readFileSync(CONFIG_FILE, "utf-8"));
-      return cfg.theme || "pie";
-    } catch { return "pie"; }
+      return cfg.theme || DEFAULT_THEME;
+    } catch {
+      return DEFAULT_THEME;
+    }
   })();
-  console.log("Auto theme: " + theme);
+}
+
+function loadCustomThemes() {
+  if (!existsSync(THEME_LIBRARY_FILE)) return [];
+  try {
+    const payload = JSON.parse(readFileSync(THEME_LIBRARY_FILE, "utf-8"));
+    return Array.isArray(payload) ? payload : payload.custom_themes || [];
+  } catch {
+    return [];
+  }
+}
+
+function resolveThemeSpec(themeId) {
+  if (BUILTIN_THEMES.has(themeId)) {
+    return { id: themeId, base_theme: themeId, style_profile: {} };
+  }
+
+  const custom = loadCustomThemes().find((item) => item.id === themeId);
+  if (custom) return custom;
+  return { id: DEFAULT_THEME, base_theme: DEFAULT_THEME, style_profile: {} };
 }
 
 function runWenyan(args) {
@@ -60,17 +92,75 @@ function runWenyan(args) {
     }
   }
 
-  const detail = lastError && lastError.message ? `\n${lastError.message}` : "";
+  const detail = lastError?.message ? `\n${lastError.message}` : "";
   throw new Error(
     "未找到可用的 wenyan-cli。请先运行 `npm install -g @wenyan-md/cli`，或在当前仓库执行 `npm install @wenyan-md/cli`。" +
       detail,
   );
 }
 
-try {
-  const html = runWenyan(["render", "-f", mdFile, "-t", theme, "--no-footnote"]);
+function appendStyle(attrs = "", styleText) {
+  const styleMatch = attrs.match(/\sstyle=(["'])(.*?)\1/i);
+  if (styleMatch) {
+    const existing = styleMatch[2].trim();
+    const merged = `${existing}${existing.endsWith(";") ? "" : ";"} ${styleText}`.trim();
+    return attrs.replace(styleMatch[0], ` style="${merged}"`);
+  }
+  return `${attrs} style="${styleText}"`;
+}
 
-  // 包装成完整 HTML 页面
+function injectStyleIntoTag(html, tag, styleText) {
+  if (!styleText) return html;
+  const regex = new RegExp(`<${tag}(\\b[^>]*)>`, "gi");
+  return html.replace(regex, (match, attrs = "") => `<${tag}${appendStyle(attrs, styleText)}>`);
+}
+
+function applyStyleProfile(html, styleProfile = {}) {
+  const {
+    title_color = "",
+    body_color = "",
+    accent_color = "",
+    quote_background = "",
+    heading_weight = "",
+  } = styleProfile;
+
+  let nextHtml = html;
+  const headingStyles = [];
+  if (title_color) headingStyles.push(`color: ${title_color} !important;`);
+  if (heading_weight) headingStyles.push(`font-weight: ${heading_weight} !important;`);
+  for (const tag of ["h1", "h2", "h3", "h4", "h5", "h6"]) {
+    nextHtml = injectStyleIntoTag(nextHtml, tag, headingStyles.join(" "));
+  }
+
+  const bodyStyle = body_color ? `color: ${body_color} !important;` : "";
+  for (const tag of ["p", "li"]) {
+    nextHtml = injectStyleIntoTag(nextHtml, tag, bodyStyle);
+  }
+
+  const accentStyle = accent_color ? `color: ${accent_color} !important;` : "";
+  for (const tag of ["strong", "a"]) {
+    nextHtml = injectStyleIntoTag(nextHtml, tag, accentStyle);
+  }
+
+  const quoteStyles = [];
+  if (quote_background) quoteStyles.push(`background: ${quote_background} !important;`);
+  if (accent_color) quoteStyles.push(`border-left: 4px solid ${accent_color} !important;`);
+  if (body_color) quoteStyles.push(`color: ${body_color} !important;`);
+  if (quoteStyles.length) {
+    quoteStyles.push("padding: 14px 18px !important;");
+    quoteStyles.push("border-radius: 16px !important;");
+  }
+  nextHtml = injectStyleIntoTag(nextHtml, "blockquote", quoteStyles.join(" "));
+
+  return nextHtml;
+}
+
+try {
+  const themeSpec = resolveThemeSpec(theme);
+  const baseTheme = themeSpec.base_theme || DEFAULT_THEME;
+  let html = runWenyan(["render", "-f", mdFile, "-t", baseTheme, "--no-footnote"]);
+  html = applyStyleProfile(html, themeSpec.style_profile || {});
+
   const fullHtml = `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -85,13 +175,14 @@ ${html}
 </html>`;
 
   writeFileSync(outFile, fullHtml, "utf-8");
-  console.log("OK: " + outFile + " (" + (fullHtml.length / 1024).toFixed(1) + "KB, theme=" + theme + ")");
+  console.log(
+    `OK: ${outFile} (${(fullHtml.length / 1024).toFixed(1)}KB, theme=${theme}, base=${baseTheme})`,
+  );
 
-  // 同时输出纯 HTML 内容（不含外层），供 direct_publish 使用
   const contentOnly = outFile.replace(/\.html$/i, "_content.html");
   writeFileSync(contentOnly, html, "utf-8");
   console.log("Content: " + contentOnly);
-} catch (e) {
-  console.error("FAIL: " + e.message);
+} catch (error) {
+  console.error("FAIL: " + error.message);
   process.exit(1);
 }

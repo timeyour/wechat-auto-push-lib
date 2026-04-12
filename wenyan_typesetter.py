@@ -2,36 +2,24 @@
 wenyan-cli 排版引擎 - Markdown → 微信公众号美化 HTML
 
 使用 wenyan-cli (@wenyan-md/cli) 排版，输出微信编辑器兼容的内联样式 HTML。
-
-使用方式：
-    from wenyan_typesetter import render_with_wenyan
-
-    html = render_with_wenyan("article.md", theme="pie")
-    html = render_with_wenyan(text="# 标题\n正文", theme="maize")
-
-主题列表：
-    default / orangeheart / rainbow / lapis / pie / maize / purple / phycat
 """
-import subprocess
-import shutil
-import re
+from __future__ import annotations
+
 import logging
+import re
+import shutil
+import subprocess
 from pathlib import Path
 from typing import Optional
 
-logger = logging.getLogger(__name__)
+from theme_library import (
+    DEFAULT_THEME,
+    apply_theme_profile,
+    get_theme_spec,
+    list_all_themes,
+)
 
-WENYAN_THEMES = [
-    {"id": "default",     "name": "Default",      "desc": "经典蓝灰 · 简洁长文阅读"},
-    {"id": "orangeheart", "name": "OrangeHeart",  "desc": "暖橙色调 · 优雅活力"},
-    {"id": "rainbow",     "name": "Rainbow",      "desc": "彩虹色 · 清新活泼"},
-    {"id": "lapis",       "name": "Lapis",        "desc": "冷蓝色调 · 极简清爽"},
-    {"id": "pie",         "name": "Pie",          "desc": "少数派风格 · 现代锐利"},
-    {"id": "maize",       "name": "Maize",        "desc": "浅黄色调 · 柔和精致"},
-    {"id": "purple",      "name": "Purple",       "desc": "淡紫色调 · 干净极简"},
-    {"id": "phycat",      "name": "PhyCat",       "desc": "薄荷绿 · 结构清晰"},
-]
-DEFAULT_THEME = "pie"
+logger = logging.getLogger(__name__)
 
 
 def is_wenyan_available() -> bool:
@@ -51,20 +39,18 @@ def render_with_wenyan(
     参数：
         md_path: Markdown 文件路径（与 md_text 二选一）
         md_text: Markdown 文本
-        theme: 主题名
+        theme: 主题名，可为内置主题或自定义/仿写主题 ID
         wechat_urls: 已上传到微信的图片 {key: url}，注入到 HTML 中
     """
     if not is_wenyan_available():
         raise RuntimeError("wenyan-cli 未安装。请运行: npm install -g @wenyan-md/cli")
 
-    if theme not in [t["id"] for t in WENYAN_THEMES]:
-        logger.warning(f"未知主题 '{theme}'，使用 '{DEFAULT_THEME}'")
-        theme = DEFAULT_THEME
-
+    theme_spec = get_theme_spec(theme)
+    base_theme = str(theme_spec.get("base_theme") or theme_spec["id"])
     if md_path:
-        cmd = ["wenyan", "render", "-f", str(md_path), "-t", theme, "--no-footnote"]
+        cmd = ["wenyan", "render", "-f", str(md_path), "-t", base_theme, "--no-footnote"]
     elif md_text:
-        cmd = ["wenyan", "render", "-t", theme, "--no-footnote"]
+        cmd = ["wenyan", "render", "-t", base_theme, "--no-footnote"]
     else:
         raise ValueError("必须提供 md_path 或 md_text")
 
@@ -82,30 +68,33 @@ def render_with_wenyan(
 
     html = result.stdout.strip()
 
-    # 注入微信图片 URL
     if wechat_urls:
         for key, wechat_url in wechat_urls.items():
             img_html = (
                 f'<div style="margin:20px 0;text-align:center;">'
                 f'<img src="{wechat_url}" style="width:100%;max-width:680px;border-radius:8px;" alt="{key}" />'
-                f'</div>'
+                f"</div>"
             )
             html = html.replace(f"[IMG:{key}]", img_html)
-
-            # 兼容 data-img-key 锚点格式
             pattern = rf'(data-img-key="{key}"[^>]*src="")'
             html = re.sub(pattern, f'data-img-key="{key}" src="{wechat_url}"', html)
 
-    logger.info(f"wenyan 排版完成: 主题={theme}, HTML大小={len(html)/1024:.1f}KB")
+    html = apply_theme_profile(html, theme_spec)
+    logger.info(
+        "wenyan 排版完成: theme=%s, base=%s, HTML大小=%.1fKB",
+        theme_spec["id"],
+        base_theme,
+        len(html) / 1024,
+    )
     return html
 
 
 def list_themes() -> list:
-    """返回所有可用主题"""
-    return WENYAN_THEMES
+    """返回所有可用主题（包含自定义/仿写主题）"""
+    return list_all_themes()
 
 
-def preview_theme(md_path: str, theme: str, output_html: str):
+def preview_theme(md_path: str, theme: str, output_html: str) -> None:
     """渲染指定主题并保存为 HTML 预览文件"""
     html = render_with_wenyan(md_path=md_path, theme=theme)
     full = f"""<!DOCTYPE html>
@@ -123,18 +112,19 @@ body {{ max-width: 680px; margin: 40px auto; padding: 0 20px; background: #fff; 
 </body>
 </html>"""
     Path(output_html).write_text(full, encoding="utf-8")
-    logger.info(f"预览文件已保存: {output_html}")
+    logger.info("预览文件已保存: %s", output_html)
 
 
 if __name__ == "__main__":
     import sys
+
     if len(sys.argv) > 1 and sys.argv[1] == "themes":
         print("可用主题：")
-        for t in WENYAN_THEMES:
-            print(f"  {t['id']:15s} {t['name']:15s} {t['desc']}")
-    elif len(sys.argv) > 2:
+        for theme in list_themes():
+            print(f"  {theme['id']:20s} {theme['name']:15s} {theme['desc']}")
+    elif len(sys.argv) > 3:
         preview_theme(sys.argv[1], sys.argv[2], sys.argv[3])
     else:
         print("用法:")
-        print("  python wenyan_typesetter.py themes                  # 列出所有主题")
-        print("  python wenyan_typesetter.py input.md pie output.html  # 渲染预览")
+        print("  python wenyan_typesetter.py themes")
+        print("  python wenyan_typesetter.py input.md pie output.html")
