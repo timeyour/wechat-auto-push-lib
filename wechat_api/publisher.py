@@ -23,6 +23,7 @@ from config import (
     DIGEST_MAX_BYTES,
     TITLE_MAX_BYTES,
     TITLE_DISPLAY_LENGTH,
+    MAX_CONTENT_IMAGES,
 )
 
 logger = logging.getLogger(__name__)

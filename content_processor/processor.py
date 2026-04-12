@@ -137,8 +137,6 @@ def build_final_content(
 def _get_font_path(size: int = 36) -> "ImageFont.FreeTypeFont":  # type: ignore[name-defined]
     """
     跨平台获取中文字体。
-    """
-    跨平台获取中文字体。
 
     Windows: C:/Windows/Fonts/
     Mac: /System/Library/Fonts/, ~/Library/Fonts/
