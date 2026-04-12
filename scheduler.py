@@ -1,9 +1,12 @@
 """
 定时调度引擎 - RSS 抓取 + 发布流水线
 """
+from __future__ import annotations
+
 import logging
 import sys
 from datetime import datetime
+from typing import TypedDict
 
 from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.triggers.interval import IntervalTrigger
@@ -14,6 +17,26 @@ from content_processor.processor import (
     clean_html, extract_text_summary, build_final_content,
     get_first_image_url, generate_default_cover,
 )
+from wechat_api.publisher import WeChatPublisher
+
+
+class DryRunItem(TypedDict):
+    """试运行预览项"""
+    title: str
+    source_name: str
+    tag: str
+    link: str
+    digest: str
+    cover: str
+    content_length: int
+
+
+class DryRunResult(TypedDict):
+    """试运行结果"""
+    run_at: str
+    total_found: int
+    displayed: int
+    items: list[DryRunItem]
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +47,7 @@ def _safe_console_text(text: str) -> str:
     return text.encode(encoding, errors="replace").decode(encoding, errors="replace")
 
 
-def process_article(publisher, article: Article) -> bool:
+def process_article(publisher: WeChatPublisher, article: Article) -> bool:
     """处理单篇文章：清洗 → 上传封面 → 替换图片 → 创建草稿"""
     try:
         logger.info(f"处理文章: {article.title}")
@@ -165,7 +188,7 @@ def run_dry():
         print(_safe_console_text(f"  正文长度: {item['content_length']} 字符"))
 
 
-def collect_dry_run_preview(limit: int = 8) -> dict:
+def collect_dry_run_preview(limit: int = 8) -> DryRunResult:
     """返回页面友好的 dry-run 结果，不创建草稿。"""
     articles = fetch_all_sources()
     items = []

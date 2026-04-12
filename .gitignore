@@ -68,6 +68,7 @@ generated-images/
 
 # User articles & drafts (exclude ALL .md except corpus-playbook official playbooks)
 *.md
+!CLAUDE.md
 !corpus-playbook/**/*.md
 
 # theme_previews dir (generated screenshots)

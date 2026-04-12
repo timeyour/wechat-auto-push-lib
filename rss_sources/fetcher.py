@@ -2,11 +2,14 @@
 RSS 多源抓取模块
 支持 RSS 摘要 + 原文全文两种模式，自动去重。
 """
+from __future__ import annotations
+
 import feedparser
 import hashlib
 import json
 import logging
 import re
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
@@ -44,23 +47,32 @@ def _url_fingerprint(url: str) -> str:
     return hashlib.md5(url.split("?")[0].split("#")[0].rstrip("/").encode()).hexdigest()
 
 
+@dataclass
 class Article:
     """抓取到的文章对象"""
-    def __init__(self, title: str, link: str, summary: str, content: str,
-                 author: str = "", source_name: str = "", tag: str = "",
-                 published: Optional[datetime] = None, cover_url: str = ""):
-        self.title = title.strip()
-        self.link = link.strip()
-        self.summary = summary.strip()
-        self.content = content.strip()
-        self.author = author.strip()
-        self.source_name = source_name
-        self.tag = tag
-        self.published = published or datetime.now(timezone.utc)
-        self.cover_url = cover_url
-        self.fingerprint = _url_fingerprint(link)
+    title: str
+    link: str
+    summary: str
+    content: str
+    author: str = ""
+    source_name: str = ""
+    tag: str = ""
+    published: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    cover_url: str = ""
+    fingerprint: str = field(init=False)
 
-    def __repr__(self):
+    def __post_init__(self) -> None:
+        """初始化后处理"""
+        # 去除首尾空白
+        self.title = self.title.strip()
+        self.link = self.link.strip()
+        self.summary = self.summary.strip()
+        self.content = self.content.strip()
+        self.author = self.author.strip()
+        # 生成指纹
+        self.fingerprint = _url_fingerprint(self.link)
+
+    def __repr__(self) -> str:
         return f"Article({self.title!r}, from={self.source_name!r})"
 
 

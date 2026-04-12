@@ -1,0 +1,11 @@
+# 开发依赖
+-r requirements.txt
+
+# 测试框架
+pytest>=7.0.0
+pytest-cov>=4.0.0
+pytest-mock>=3.10.0
+
+# 代码质量
+flake8>=6.0.0
+mypy>=1.0.0

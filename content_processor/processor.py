@@ -1,16 +1,23 @@
 """
 内容处理模块 - HTML 清洗、格式转换、图片下载、封面生成
 """
+from __future__ import annotations
+
 import hashlib
 import logging
 import re
+import sys
 from pathlib import Path
+from typing import TYPE_CHECKING, Optional
 from urllib.parse import urlparse
 
 import requests
 from bs4 import BeautifulSoup, Comment
 
 from config import DIGEST_MAX_BYTES, FOOTER_HTML, COVER_CACHE
+
+if TYPE_CHECKING:
+    from PIL import ImageFont
 
 logger = logging.getLogger(__name__)
 
@@ -98,7 +105,7 @@ def _apply_wechat_styles(soup: BeautifulSoup):
             tag["style"] = "color:#576b95;text-decoration:none;"
 
 
-def extract_text_summary(html_content: str, max_bytes: int = None) -> str:
+def extract_text_summary(html_content: str, max_bytes: Optional[int] = None) -> str:
     """从 HTML 中提取纯文本摘要（限制字节数）"""
     if max_bytes is None:
         max_bytes = DIGEST_MAX_BYTES
@@ -108,7 +115,11 @@ def extract_text_summary(html_content: str, max_bytes: int = None) -> str:
     return encoded.decode("utf-8", errors="ignore") + "..."
 
 
-def build_final_content(article_content: str, source_url: str = "", source_name: str = "") -> str:
+def build_final_content(
+    article_content: str,
+    source_url: str = "",
+    source_name: str = ""
+) -> str:
     """构建最终发布内容（来源信息 + 页脚）"""
     content = article_content
     if source_url:
@@ -123,12 +134,82 @@ def build_final_content(article_content: str, source_url: str = "", source_name:
     return content
 
 
+def _get_font_path(size: int = 36) -> "ImageFont.FreeTypeFont":  # type: ignore[name-defined]
+    """
+    跨平台获取中文字体。
+    """
+    跨平台获取中文字体。
+
+    Windows: C:/Windows/Fonts/
+    Mac: /System/Library/Fonts/, ~/Library/Fonts/
+    Linux: /usr/share/fonts/, ~/.fonts/
+
+    Returns:
+        PIL ImageFont 对象
+
+    Raises:
+        所有字体都不可用时返回默认字体
+    """
+    from PIL import ImageFont
+    import platform
+    import os
+
+    system = platform.system()
+
+    # 候选字体列表（按优先级排序）
+    if system == "Windows":
+        font_dirs = [
+            Path("C:/Windows/Fonts"),
+        ]
+        font_names = ["msyh.ttc", "simhei.ttf", "simsun.ttc", "msyhbd.ttc"]
+    elif system == "Darwin":  # macOS
+        font_dirs = [
+            Path("/System/Library/Fonts"),
+            Path("/Library/Fonts"),
+            Path.home() / "Library/Fonts",
+        ]
+        font_names = ["PingFang.ttc", "Hiragino Sans GB.ttc", "STHeiti Light.ttc",
+                      "Arial Unicode.ttf", "SimHei.ttc"]
+    else:  # Linux
+        font_dirs = [
+            Path("/usr/share/fonts"),
+            Path("/usr/local/share/fonts"),
+            Path.home() / ".fonts",
+            Path.home() / ".local/share/fonts",
+        ]
+        font_names = ["NotoSansCJK-Regular.ttc", "WenQuanYi Micro Hei.ttc",
+                      "Droid Sans Fallback.ttf", "Source Han Sans CN Regular.otf"]
+
+    # 递归搜索字体目录
+    def find_fonts():
+        for font_dir in font_dirs:
+            if not font_dir.exists():
+                continue
+            # 递归查找所有 .ttc 和 .ttf 文件
+            for ext in ["*.ttc", "*.ttf", "*.otf"]:
+                for font_path in font_dir.rglob(ext):
+                    yield font_path
+
+    # 尝试加载候选字体
+    for font_path in find_fonts():
+        try:
+            font = ImageFont.truetype(str(font_path), size)
+            logger.debug(f"成功加载字体: {font_path}")
+            return font
+        except Exception:
+            continue
+
+    # 所有字体都不可用，返回默认字体
+    logger.warning("未找到合适的中文字体，使用系统默认字体")
+    return ImageFont.load_default()
+
+
 def generate_default_cover(title: str = "公众号文章") -> Path:
     """
     生成默认封面图（渐变背景 + 标题文字）
     微信封面要求：2.35:1 比例，建议 900×383 像素，不超过 2MB
     """
-    from PIL import Image, ImageDraw, ImageFont
+    from PIL import Image, ImageDraw
 
     width, height = 900, 383
     img = Image.new("RGB", (width, height))
@@ -142,17 +223,8 @@ def generate_default_cover(title: str = "公众号文章") -> Path:
         b = int(80 + ratio * 80)
         draw.line([(0, y), (width, y)], fill=(r, g, b))
 
-    # 加载中文字体
-    font = None
-    for fp in ["C:/Windows/Fonts/msyh.ttc", "C:/Windows/Fonts/simhei.ttf", "C:/Windows/Fonts/simsun.ttc"]:
-        if Path(fp).exists():
-            try:
-                font = ImageFont.truetype(fp, 36)
-                break
-            except Exception:
-                continue
-    if font is None:
-        font = ImageFont.load_default()
+    # 加载中文字体（跨平台）
+    font = _get_font_path(36)
 
     # 截断标题
     display_title = title[:18] + "..." if len(title) > 18 else title
@@ -169,10 +241,7 @@ def generate_default_cover(title: str = "公众号文章") -> Path:
     draw.text((x, y), display_title, fill=(255, 255, 255), font=font)
 
     # 底部品牌文字
-    try:
-        brand_font = ImageFont.truetype("C:/Windows/Fonts/msyh.ttc", 18)
-    except Exception:
-        brand_font = font
+    brand_font = _get_font_path(18)
     draw.text((width // 2 - 40, height - 40), "公众号", fill=(180, 180, 200), font=brand_font)
 
     save_path = COVER_CACHE / "default_cover.jpg"
@@ -181,7 +250,7 @@ def generate_default_cover(title: str = "公众号文章") -> Path:
     return save_path
 
 
-def download_image(url: str, save_path: Path = None) -> Path:
+def download_image(url: str, save_path: Optional[Path] = None) -> Path:
     """
     下载图片到本地缓存，自动转换 webp/bmp 等格式为 JPEG。
     超过 1.8MB 则压缩。

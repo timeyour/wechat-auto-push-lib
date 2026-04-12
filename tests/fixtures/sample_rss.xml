@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+    <channel>
+        <title>测试RSS源</title>
+        <link>https://example.com</link>
+        <description>测试用的RSS源</description>
+        <item>
+            <title>测试文章标题</title>
+            <link>https://example.com/article-1</link>
+            <description><![CDATA[这是一篇测试文章的内容摘要，包含中文。]]></description>
+            <author>测试作者</author>
+            <pubDate>Sun, 12 Apr 2026 10:00:00 GMT</pubDate>
+        </item>
+        <item>
+            <title>第二篇测试文章</title>
+            <link>https://example.com/article-2</link>
+            <description><![CDATA[第二篇文章的摘要内容。]]></description>
+            <author>另一个作者</author>
+            <pubDate>Sun, 12 Apr 2026 12:00:00 GMT</pubDate>
+        </item>
+    </channel>
+</rss>

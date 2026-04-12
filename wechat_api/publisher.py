@@ -1,6 +1,8 @@
 """
 微信公众号 API 模块 - Token 管理、图片上传、草稿创建
 """
+from __future__ import annotations
+
 import json
 import logging
 import time
@@ -10,12 +12,20 @@ from typing import Optional
 import requests
 from wechatpy import WeChatClient
 
-from config import WECHAT_APPID, WECHAT_APPSECRET, DATA_DIR
+from config import (
+    WECHAT_APPID,
+    WECHAT_APPSECRET,
+    TOKEN_CACHE_FILE,
+    API_BASE,
+    MAX_THUMB_SIZE_BYTES,
+    REQUEST_TIMEOUT,
+    IMAGE_UPLOAD_TIMEOUT,
+    DIGEST_MAX_BYTES,
+    TITLE_MAX_BYTES,
+    TITLE_DISPLAY_LENGTH,
+)
 
 logger = logging.getLogger(__name__)
-
-TOKEN_CACHE_FILE = DATA_DIR / "token_cache.json"
-API_BASE = "https://api.weixin.qq.com"
 
 
 class TokenManager:
@@ -41,7 +51,7 @@ class TokenManager:
         resp = requests.get(
             f"{API_BASE}/cgi-bin/token",
             params={"grant_type": "client_credential", "appid": self.appid, "secret": self.secret},
-            timeout=10,
+            timeout=REQUEST_TIMEOUT,
         )
         data = resp.json()
         if "access_token" not in data:
@@ -93,15 +103,15 @@ class WeChatPublisher:
         params["access_token"] = token
 
         if method == "GET":
-            resp = requests.get(url, params=params, timeout=30)
+            resp = requests.get(url, params=params, timeout=REQUEST_TIMEOUT)
         elif method == "POST" and files:
-            resp = requests.post(url, params=params, data=data, files=files, timeout=60)
+            resp = requests.post(url, params=params, data=data, files=files, timeout=IMAGE_UPLOAD_TIMEOUT)
         else:
             body = json.dumps(data, ensure_ascii=False).encode("utf-8")
             resp = requests.post(
                 url, params=params, data=body,
                 headers={"Content-Type": "application/json; charset=utf-8"},
-                timeout=30,
+                timeout=REQUEST_TIMEOUT,
             )
 
         result = resp.json()
@@ -112,15 +122,15 @@ class WeChatPublisher:
             self.token_manager._refresh_token()
             params["access_token"] = self.token_manager.get_access_token()
             if method == "GET":
-                resp = requests.get(url, params=params, timeout=30)
+                resp = requests.get(url, params=params, timeout=REQUEST_TIMEOUT)
             elif method == "POST" and files:
-                resp = requests.post(url, params=params, data=data, files=files, timeout=60)
+                resp = requests.post(url, params=params, data=data, files=files, timeout=IMAGE_UPLOAD_TIMEOUT)
             else:
                 body = json.dumps(data, ensure_ascii=False).encode("utf-8")
                 resp = requests.post(
                     url, params=params, data=body,
                     headers={"Content-Type": "application/json; charset=utf-8"},
-                    timeout=30,
+                    timeout=REQUEST_TIMEOUT,
                 )
             result = resp.json()
 
@@ -132,8 +142,8 @@ class WeChatPublisher:
         """上传封面图到微信素材库，返回 media_id"""
         if not image_path.exists():
             raise FileNotFoundError(f"图片不存在: {image_path}")
-        if image_path.stat().st_size > 2 * 1024 * 1024:
-            raise ValueError("封面图超过 2MB，请先压缩")
+        if image_path.stat().st_size > MAX_THUMB_SIZE_BYTES:
+            raise ValueError(f"封面图超过 {MAX_THUMB_SIZE_BYTES / 1024 / 1024}MB，请先压缩")
 
         token = self.token_manager.get_access_token()
         with open(image_path, "rb") as f:
@@ -141,7 +151,7 @@ class WeChatPublisher:
                 f"{API_BASE}/cgi-bin/material/add_material",
                 params={"access_token": token, "type": "thumb"},
                 files={"media": (image_path.name, f)},
-                timeout=60,
+                timeout=IMAGE_UPLOAD_TIMEOUT,
             )
         result = resp.json()
         if "media_id" not in result:
@@ -163,22 +173,22 @@ class WeChatPublisher:
         """
         # 标题截断（中文 3 字节/字，安全截断）
         title_bytes = title.encode("utf-8")
-        if len(title_bytes) > 28:
+        if len(title_bytes) > TITLE_MAX_BYTES:
             chars, size = [], 0
             for ch in title:
                 cs = len(ch.encode("utf-8"))
-                if size + cs <= 27:
+                if size + cs <= TITLE_MAX_BYTES - 1:
                     chars.append(ch)
                     size += cs
                 else:
                     break
             title = "".join(chars) + "..."
-            while len(title.encode("utf-8")) > 42:
+            while len(title.encode("utf-8")) > TITLE_MAX_BYTES * 1.5:
                 title = title[:-4] + "..."
 
         # 摘要截断
-        if digest and len(digest.encode("utf-8")) > 58:
-            digest = digest.encode("utf-8")[:55].decode("utf-8", errors="ignore") + "..."
+        if digest and len(digest.encode("utf-8")) > DIGEST_MAX_BYTES:
+            digest = digest.encode("utf-8")[:DIGEST_MAX_BYTES - 3].decode("utf-8", errors="ignore") + "..."
         if not digest:
             from bs4 import BeautifulSoup
             import re
@@ -188,6 +198,24 @@ class WeChatPublisher:
                 digest = text.encode("utf-8")[:55].decode("utf-8", errors="ignore") + "..."
             except Exception:
                 digest = "点击查看全文"
+
+        # 如果没有thumb_media_id，尝试从内容中提取第一张图片作为封面
+        if not thumb_media_id:
+            try:
+                from bs4 import BeautifulSoup
+                from content_processor.processor import download_image
+                soup = BeautifulSoup(content, "lxml")
+                first_img = soup.find("img")
+                if first_img:
+                    img_url = first_img.get("src", "") or first_img.get("data-src", "")
+                    if img_url:
+                        # 下载图片到本地
+                        local_path = download_image(img_url)
+                        if local_path and local_path.exists():
+                            thumb_media_id = self.upload_thumb_image(local_path)
+                            logger.info(f"已使用内容图片作为封面: {local_path}")
+            except Exception as e:
+                logger.warning(f"提取封面图失败: {e}")
 
         articles = [{
             "title": title,
@@ -226,7 +254,7 @@ class WeChatPublisher:
                 f"{API_BASE}/cgi-bin/media/uploadimg",
                 params={"access_token": token},
                 files={"media": (local_path.name, f)},
-                timeout=60,
+                timeout=IMAGE_UPLOAD_TIMEOUT,
             )
         result = resp.json()
         if "url" not in result:
@@ -234,7 +262,7 @@ class WeChatPublisher:
         logger.info(f"文章图片上传成功")
         return result["url"]
 
-    def replace_content_images(self, html_content: str, max_images: int = 10) -> str:
+    def replace_content_images(self, html_content: str, max_images: int = MAX_CONTENT_IMAGES) -> str:
         """替换文章 HTML 中的外链图片为微信 URL"""
         from bs4 import BeautifulSoup
         from urllib.parse import urlparse

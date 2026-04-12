@@ -59,3 +59,32 @@ FOOTER_HTML = os.getenv("FOOTER_HTML", """
 # === 调度配置 ===
 FETCH_INTERVAL_HOURS = int(os.getenv("FETCH_INTERVAL_HOURS", "6"))  # 抓取间隔（小时）
 PUBLISH_TIME_RANGE = (8, 22)   # 允许推草稿的时间段（24小时制，8:00-22:00）
+
+# === 魔法常量（统一管理） ===
+
+# 微信 API 相关
+API_BASE = "https://api.weixin.qq.com"
+TOKEN_CACHE_FILE = DATA_DIR / "token_cache.json"
+TOKEN_REFRESH_AHEAD_SECONDS = 60  # 提前多少秒刷新 token
+REQUEST_TIMEOUT = 30               # API 请求超时（秒）
+IMAGE_UPLOAD_TIMEOUT = 60          # 图片上传超时（秒）
+
+# 封面图相关
+MAX_THUMB_SIZE_BYTES = 2 * 1024 * 1024      # 封面图最大 2MB
+COVER_DIMENSIONS = (900, 383)                 # 封面图尺寸（2.35:1 比例）
+COVER_QUALITY = 85                            # JPEG 压缩质量
+COVER_CACHE_MAX_SIZE = 1.8 * 1024 * 1024     # 自动压缩阈值 1.8MB
+
+# 标题相关
+TITLE_MAX_BYTES = 28        # 标题最大字节数
+TITLE_DISPLAY_LENGTH = 18   # 封面显示的标题最大字符数
+
+# 内容过滤
+MIN_CONTENT_LENGTH = 100    # 正文最小字符数（低于此值不处理）
+CHINESE_THRESHOLD = 0.3     # 中文内容占比阈值
+
+# 图片处理
+MAX_CONTENT_IMAGES = 10     # 单篇文章最多替换图片数
+
+# 试运行预览
+DRY_RUN_PREVIEW_LIMIT = 8   # 试运行最多预览文章数
