@@ -35,17 +35,14 @@ class WeChatPushError(Exception):
 
 class TokenError(WeChatPushError):
     """Token 相关基础异常"""
-    pass
 
 
 class TokenExpiredError(TokenError):
     """Access Token 已过期"""
-    pass
 
 
 class TokenFetchError(TokenError):
     """获取 Access Token 失败"""
-    pass
 
 
 # === API 相关异常 ===
@@ -64,24 +61,20 @@ class APIError(WeChatPushError):
 
 class DraftCreationError(APIError):
     """创建草稿失败"""
-    pass
 
 
 class ImageUploadError(APIError):
     """图片上传失败"""
-    pass
 
 
 class MaterialError(APIError):
     """素材操作失败"""
-    pass
 
 
 # === 内容相关异常 ===
 
 class ContentError(WeChatPushError):
     """内容处理基础异常"""
-    pass
 
 
 class ContentFetchError(ContentError):
@@ -103,7 +96,6 @@ class ContentParseError(ContentError):
 
 class RSSError(WeChatPushError):
     """RSS 相关基础异常"""
-    pass
 
 
 class RSSParseError(RSSError):
@@ -118,7 +110,6 @@ class RSSParseError(RSSError):
 
 class ConfigError(WeChatPushError):
     """配置相关异常"""
-    pass
 
 
 class MissingConfigError(ConfigError):

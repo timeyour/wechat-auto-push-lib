@@ -11,12 +11,15 @@ from typing import TypedDict
 from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 
-from config import FETCH_INTERVAL_HOURS, PUBLISH_TIME_RANGE, DEFAULT_AUTHOR
-from rss_sources.fetcher import fetch_all_sources, mark_batch_as_published, Article
+from config import DEFAULT_AUTHOR, FETCH_INTERVAL_HOURS, PUBLISH_TIME_RANGE
 from content_processor.processor import (
-    clean_html, extract_text_summary, build_final_content,
-    get_first_image_url, generate_default_cover,
+    build_final_content,
+    clean_html,
+    extract_text_summary,
+    generate_default_cover,
+    get_first_image_url,
 )
+from rss_sources.fetcher import Article, fetch_all_sources, mark_batch_as_published
 from wechat_api.publisher import WeChatPublisher
 
 
