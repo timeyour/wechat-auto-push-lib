@@ -1,0 +1,42 @@
+{
+  "_comment": "主题预设示例。用户可复制任一 preset 到 frontmatter，publish_article.py 会自动读取。",
+  "_comment2": "style_profile 五参数均可留空（走 WenYan 主题自带样式），也可自定义颜色覆盖。",
+  "presets": [
+    {
+      "name": "技术博客（默认）",
+      "theme_id": "pie",
+      "desc": "少数派风格，适合科技/AI/工具/开源类公众号",
+      "style_profile": {
+        "title_color": "",
+        "body_color": "",
+        "accent_color": "",
+        "quote_background": "",
+        "heading_weight": "800"
+      }
+    },
+    {
+      "name": "经典长文",
+      "theme_id": "default",
+      "desc": "经典蓝灰，简洁长文阅读体验",
+      "style_profile": {
+        "title_color": "",
+        "body_color": "",
+        "accent_color": "",
+        "quote_background": "",
+        "heading_weight": "800"
+      }
+    },
+    {
+      "name": "产品/行业",
+      "theme_id": "lapis",
+      "desc": "冷蓝色调，极简清爽",
+      "style_profile": {
+        "title_color": "",
+        "body_color": "",
+        "accent_color": "",
+        "quote_background": "",
+        "heading_weight": "800"
+      }
+    }
+  ]
+}

@@ -261,6 +261,16 @@ python publish_article.py your_article.md [--style tech]
 
 适合：会议录音整理稿、视频字幕稿、别人写好的草稿、RSS 清洗后的内容。
 
+**主题固定方式：** 在文章 Markdown 顶部 frontmatter 中指定 `theme_id`，可选值见 [theme-gallery skill](https://github.com/timeyour/wechat-ops-sop/tree/main/skills/theme-gallery)。示例预设见 `data/style_presets.json`，复制到 frontmatter 即可锁定这篇的排版风格。
+
+```bash
+python publish_article.py your_article.md [--style tech]
+```
+
+流程：语义增强 → 封面图生成 → WenYan 排版 → 合规检查 → 微信草稿箱
+
+适合：会议录音整理稿、视频字幕稿、别人写好的草稿、RSS 清洗后的内容。
+
 ---
 
 ## License
