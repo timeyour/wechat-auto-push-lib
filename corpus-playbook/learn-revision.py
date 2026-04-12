@@ -18,13 +18,11 @@ learn-revision.py — 改稿反馈学习
 原理: 每积累5条改稿 → 运行 build-playbook.py 更新写作手册
 """
 
-import os
-import sys
 import json
-import hashlib
 import re
-from pathlib import Path
+import sys
 from datetime import datetime
+from pathlib import Path
 
 BASE_DIR = Path(__file__).parent.resolve()
 LESSONS_DIR = BASE_DIR / "lessons"
@@ -168,9 +166,9 @@ def add_revision(ai_path: str, human_path: str) -> dict:
     print(f"📊 当前改稿记录: {count} 条")
     if count >= AUTO_UPDATE_THRESHOLD:
         print(f"\n🎉 已积累 {AUTO_UPDATE_THRESHOLD} 条改稿！")
-        print(f"   运行以下命令更新所有写作手册：")
-        print(f"   python build-playbook.py <话题ID> --force")
-        print(f"   （建议对涉及的话题分别运行）")
+        print("   运行以下命令更新所有写作手册：")
+        print("   python build-playbook.py <话题ID> --force")
+        print("   （建议对涉及的话题分别运行）")
 
     return record
 
@@ -219,7 +217,7 @@ def show_stats():
         bar = "█" * n + "░" * (10 - n)
         print(f"  {t:<12} {bar} ×{n}")
     print(f"\n🎯 最高频改进点: {sorted_types[0][0] if sorted_types else '暂无'}")
-    print(f"\n💡 将这些改进点内化到 prompt 中，AI写作将越来越精准")
+    print("\n💡 将这些改进点内化到 prompt 中，AI写作将越来越精准")
 
 
 def clear_lessons():
@@ -265,7 +263,7 @@ def main():
 
     else:
         print(f"❌ 未知命令: {cmd}")
-        print(f"   可用命令: add / list / stats / clear")
+        print("   可用命令: add / list / stats / clear")
 
 
 if __name__ == '__main__':

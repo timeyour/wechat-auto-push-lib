@@ -1,17 +1,17 @@
 """
 wechat_api.publisher 模块单元测试
 """
-import pytest
-from pathlib import Path
-from unittest.mock import patch, MagicMock, mock_open
 import sys
+from pathlib import Path
+from unittest.mock import MagicMock, patch
+
+import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from wechat_api.publisher import (
     TokenManager,
     WeChatPublisher,
-    create_publisher,
 )
 
 
@@ -172,7 +172,7 @@ class TestWeChatPublisher:
         mock_path.stat.return_value.st_size = 5 * 1024 * 1024  # 5MB
         mock_path.__str__ = lambda self: "test.jpg"
 
-        with pytest.raises(ValueError, match="2MB|2\.0MB"):
+        with pytest.raises(ValueError, match=r"2MB|2\.0MB"):
             publisher.upload_thumb_image(mock_path)
 
     @patch('wechat_api.publisher.WeChatClient')

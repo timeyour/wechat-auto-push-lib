@@ -9,11 +9,11 @@
   python compliance_check.py article.md
   python compliance_check.py article.md --strict   # 优化类也阻断
 """
+import argparse
 import re
 import sys
-import argparse
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
 
 # ═══════════════════════════════════════════════════════════════
 #  辅助函数
@@ -548,7 +548,7 @@ def run_check(md_path: str, strict: bool = False) -> bool:
         output.append(msg)
 
     p(f"\n{'='*60}")
-    p(f"  合规检查报告 v2")
+    p("  合规检查报告 v2")
     p(f"  文件: {md_path}")
     p(f"  标题: {title}")
     p(f"  字数: {len(text)} | 行数: {len(text.splitlines())}")
@@ -558,7 +558,7 @@ def run_check(md_path: str, strict: bool = False) -> bool:
     all_issues = []
 
     # ── 红线类 ──
-    p(f"\n  🔴 红线类检查（命中=打回不推）")
+    p("\n  🔴 红线类检查（命中=打回不推）")
     p(f"  {'─'*40}")
     redline_checks = [
         ("1.非真人创作", lambda: check_redline_1_ai_auto(text, body)),
@@ -580,7 +580,7 @@ def run_check(md_path: str, strict: bool = False) -> bool:
                 p(f"      → {iss['suggestion']}")
 
     # ── 必须类 ──
-    p(f"\n  🟡 必须类检查（缺=提醒补上再推）")
+    p("\n  🟡 必须类检查（缺=提醒补上再推）")
     p(f"  {'─'*40}")
     required_checks = [
         ("7.AI内容标注",   lambda: check_required_7_ai_label(body)),
@@ -601,7 +601,7 @@ def run_check(md_path: str, strict: bool = False) -> bool:
                 p(f"      → {iss['suggestion']}")
 
     # ── 优化建议类 ──
-    p(f"\n  🔵 优化建议类（不影响发布）")
+    p("\n  🔵 优化建议类（不影响发布）")
     p(f"  {'─'*40}")
     suggest_checks = [
         ("12.绝对化用语", lambda: check_suggest_12_ad_words(body)),
@@ -627,7 +627,7 @@ def run_check(md_path: str, strict: bool = False) -> bool:
     suggests   = [i for i in all_issues if i["level"] == "SUGGEST"]
 
     p(f"\n{'='*60}")
-    p(f"  检查结果汇总")
+    p("  检查结果汇总")
     p(f"{'='*60}")
     p(f"  🔴 红线 (BLOCKER):   {len(blockers)}  {'❌ 打回' if blockers else '✅'}")
     p(f"  🟡 必须 (REQUIRED):  {len(requireds)}  {'⚠️ 需补' if requireds else '✅'}")
@@ -647,7 +647,7 @@ def run_check(md_path: str, strict: bool = False) -> bool:
         p(f"\n  ✅ 通过（有 {len(suggests)} 个优化建议，建议但不阻断）")
         passed = True
     else:
-        p(f"\n  ✅ 全部通过，可以发布")
+        p("\n  ✅ 全部通过，可以发布")
         passed = True
 
     # 写报告

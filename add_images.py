@@ -24,7 +24,7 @@ if len(matches) >= 2:
     # 第一张图插在第二个h2后面 (一、发生了什么)
     img1_html = f'<p style="text-align:center;margin:1em 0;"><img src="{img1_b64}" style="width:100%;max-width:680px;"/></p>'
     html = html[:matches[1].end()] + img1_html + html[matches[1].end():]
-    
+
     # 重新找h2位置插第二张
     matches = list(re.finditer(h2_pattern, html, re.DOTALL))
     if len(matches) >= 4:

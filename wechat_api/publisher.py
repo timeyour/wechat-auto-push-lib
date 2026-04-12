@@ -7,23 +7,21 @@ import json
 import logging
 import time
 from pathlib import Path
-from typing import Optional
 
 import requests
 from wechatpy import WeChatClient
 
 from config import (
-    WECHAT_APPID,
-    WECHAT_APPSECRET,
-    TOKEN_CACHE_FILE,
     API_BASE,
+    DIGEST_MAX_BYTES,
+    IMAGE_UPLOAD_TIMEOUT,
+    MAX_CONTENT_IMAGES,
     MAX_THUMB_SIZE_BYTES,
     REQUEST_TIMEOUT,
-    IMAGE_UPLOAD_TIMEOUT,
-    DIGEST_MAX_BYTES,
     TITLE_MAX_BYTES,
-    TITLE_DISPLAY_LENGTH,
-    MAX_CONTENT_IMAGES,
+    TOKEN_CACHE_FILE,
+    WECHAT_APPID,
+    WECHAT_APPSECRET,
 )
 
 logger = logging.getLogger(__name__)
@@ -191,8 +189,9 @@ class WeChatPublisher:
         if digest and len(digest.encode("utf-8")) > DIGEST_MAX_BYTES:
             digest = digest.encode("utf-8")[:DIGEST_MAX_BYTES - 3].decode("utf-8", errors="ignore") + "..."
         if not digest:
-            from bs4 import BeautifulSoup
             import re
+
+            from bs4 import BeautifulSoup
             try:
                 text = BeautifulSoup(content, "lxml").get_text(separator=" ", strip=True)
                 text = re.sub(r"\s+", " ", text).strip()
@@ -204,6 +203,7 @@ class WeChatPublisher:
         if not thumb_media_id:
             try:
                 from bs4 import BeautifulSoup
+
                 from content_processor.processor import download_image
                 soup = BeautifulSoup(content, "lxml")
                 first_img = soup.find("img")
@@ -260,13 +260,13 @@ class WeChatPublisher:
         result = resp.json()
         if "url" not in result:
             raise RuntimeError(f"文章图片上传失败: {result.get('errmsg')}")
-        logger.info(f"文章图片上传成功")
+        logger.info("文章图片上传成功")
         return result["url"]
 
     def replace_content_images(self, html_content: str, max_images: int = MAX_CONTENT_IMAGES) -> str:
         """替换文章 HTML 中的外链图片为微信 URL"""
+
         from bs4 import BeautifulSoup
-        from urllib.parse import urlparse
 
         soup = BeautifulSoup(html_content, "lxml")
         replaced = 0

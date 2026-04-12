@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
+import logging
 import os
 import sys
-import logging
 from pathlib import Path
 
 APP_DIR = Path(__file__).parent.parent

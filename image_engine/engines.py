@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
-import os
 import base64
-import requests
+import os
 import subprocess
 from typing import Optional
-from .utils import logger, OUT_DIR
+
+import requests
+
+from .utils import OUT_DIR, logger
+
 
 def try_screenshot(url: str, out_name: str) -> Optional[str]:
     """尝试用 Crawl4ai 或 Playwright 截图"""

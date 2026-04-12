@@ -1,18 +1,19 @@
 """
 rss_sources 模块单元测试
 """
-import pytest
-from pathlib import Path
-from unittest.mock import patch, MagicMock
-from datetime import datetime, timezone
 import sys
+from datetime import datetime
+from pathlib import Path
+from unittest.mock import patch
+
+import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from rss_sources.fetcher import (
     Article,
-    _url_fingerprint,
     _is_chinese_content,
+    _url_fingerprint,
     fetch_rss_feed,
 )
 

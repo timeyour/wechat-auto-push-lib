@@ -5,17 +5,15 @@
 模块化重构：遵循单一职责原则，文件逻辑控制在 300 行以内。
 """
 
-import re
-import sys
-import json
-import time
 import argparse
-from pathlib import Path
+import re
+import time
 from typing import Optional
 
-from image_engine.utils import logger, OUT_DIR
-from image_engine.prompts import build_cover_prompt, COVER_STYLES
-from image_engine.engines import try_screenshot, try_doubao, try_unsplash
+from image_engine.engines import try_doubao, try_screenshot, try_unsplash
+from image_engine.prompts import COVER_STYLES, build_cover_prompt
+from image_engine.utils import OUT_DIR, logger
+
 
 def output_prompt(prompt: str, purpose: str, out_name: str) -> str:
     """所有方法失败时，生成 prompt 文件供人工处理"""
@@ -45,7 +43,7 @@ def fallback_chain(
     safe_name = re.sub(r'[\\/:*?"<>|]', "_", purpose)[:40]
     out_name = out_name or f"{safe_name}_{timestamp}"
 
-    logger.info(f"══════ 配配图降级链启动 ══════")
+    logger.info("══════ 配配图降级链启动 ══════")
     result = {"success": False, "method": "", "path": None, "prompt_file": None, "prompt": prompt}
 
     # 1. 截图
@@ -88,7 +86,7 @@ def generate_cover(title: str, style: str = "tech", url: Optional[str] = None) -
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="配图降级链")
     sub = parser.add_subparsers(dest="cmd", required=True)
-    
+
     p_cover = sub.add_parser("cover", help="生成封面图")
     p_cover.add_argument("title", help="文章标题")
     p_cover.add_argument("--style", "-s", default="tech", choices=list(COVER_STYLES.keys()))

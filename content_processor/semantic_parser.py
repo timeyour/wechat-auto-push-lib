@@ -1,5 +1,5 @@
-import re
 import logging
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +15,7 @@ class SemanticParser:
     @staticmethod
     def parse(markdown_text: str) -> str:
         text = markdown_text
-        
+
         # 1. 识别对话体
         # 匹配格式如 "张三：内容" 或 "**李四**：内容"
         # 连续 2 条及以上视为对话
@@ -43,7 +43,7 @@ class SemanticParser:
                     dialogue_buffer = []
                     in_dialogue = False
                 new_lines.append(line)
-        
+
         # 处理结尾遗留的对话
         if in_dialogue:
             if len(dialogue_buffer) >= 2:
@@ -58,12 +58,12 @@ class SemanticParser:
         # 2. 识别连续图片 (Gallery)
         # 3 张以上连续图片（中间只有空行）套用 :::gallery
         img_pattern = re.compile(r'!\[.*?\]\(.*?\)')
-        
+
         def gallery_replacer(match):
             imgs = match.group(0).strip().split('\n')
             imgs = [i.strip() for i in imgs if i.strip()]
             if len(imgs) >= 3:
-                return f":::gallery\n" + "\n".join(imgs) + "\n:::"
+                return ":::gallery\n" + "\n".join(imgs) + "\n:::"
             return match.group(0)
 
         # 匹配连续的图片行
@@ -75,7 +75,7 @@ class SemanticParser:
             ctype = match.group(1).lower()
             title = match.group(2)
             content = match.group(3)
-            
+
             icon_map = {
                 "important": "💡",
                 "tip": "🌟",
@@ -83,7 +83,7 @@ class SemanticParser:
                 "note": "📝"
             }
             icon = icon_map.get(ctype, "📌")
-            
+
             return (
                 f'<section style="margin: 20px 0; padding: 15px; border-left: 5px solid #576b95; background: #f8f9fa; border-radius: 4px;">'
                 f'<p style="font-weight: bold; margin-bottom: 5px; color: #576b95;">{icon} {title}</p>'

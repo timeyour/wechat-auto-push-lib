@@ -3,10 +3,8 @@
 """
 from __future__ import annotations
 
-import hashlib
 import logging
 import re
-import sys
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional
 from urllib.parse import urlparse
@@ -14,7 +12,7 @@ from urllib.parse import urlparse
 import requests
 from bs4 import BeautifulSoup, Comment
 
-from config import DIGEST_MAX_BYTES, FOOTER_HTML, COVER_CACHE
+from config import COVER_CACHE, DIGEST_MAX_BYTES, FOOTER_HTML
 
 if TYPE_CHECKING:
     from PIL import ImageFont
@@ -148,9 +146,9 @@ def _get_font_path(size: int = 36) -> "ImageFont.FreeTypeFont":  # type: ignore[
     Raises:
         所有字体都不可用时返回默认字体
     """
-    from PIL import ImageFont
     import platform
-    import os
+
+    from PIL import ImageFont
 
     system = platform.system()
 
@@ -270,8 +268,9 @@ def download_image(url: str, save_path: Optional[Path] = None) -> Path:
 
     if needs_convert or len(raw_data) > 1.8 * 1024 * 1024:
         try:
-            from PIL import Image
             import io
+
+            from PIL import Image
             img = Image.open(io.BytesIO(raw_data))
             if img.mode in ("RGBA", "P", "LA", "PA"):
                 bg = Image.new("RGB", img.size, (255, 255, 255))

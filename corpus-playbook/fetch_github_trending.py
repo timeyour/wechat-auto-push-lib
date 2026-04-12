@@ -7,11 +7,10 @@ fetch_github_trending.py
   python fetch_github_trending.py <语言>   # 指定语言，如 python / javascript
 """
 
-import sys
-import json
-import re
 import datetime
+import json
 import os
+import sys
 from pathlib import Path
 
 BASE_DIR = Path(__file__).parent.resolve()
@@ -49,7 +48,7 @@ def fetch_github_api(url: str) -> dict | None:
         if r.status_code == 200:
             return r.json()
         elif r.status_code == 403:
-            print(f"GitHub API rate limit hit (403). Add GITHUB_TOKEN to config.json")
+            print("GitHub API rate limit hit (403). Add GITHUB_TOKEN to config.json")
             return None
         else:
             print(f"GitHub API error: {r.status_code} {r.text[:200]}")

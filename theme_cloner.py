@@ -8,16 +8,17 @@
 4. 生成 WenYan 主题配置 (Generator)
 """
 
-import requests
-import json
 import argparse
-from bs4 import BeautifulSoup
 from pathlib import Path
+
+import requests
+from bs4 import BeautifulSoup
+
 
 def fetch_wechat_styles(url_or_path):
     """抓取并提取微信文章中的核心样式块（支持 URL 或 本地路径）"""
     print(f"正在分析: {url_or_path}")
-    
+
     html_content = ""
     if url_or_path.startswith("http"):
         headers = {
@@ -39,10 +40,10 @@ def fetch_wechat_styles(url_or_path):
             return None
 
     soup = BeautifulSoup(html_content, 'lxml')
-    
+
     # 提取核心样式元素
     style_blocks = []
-    
+
     # 1. 查找所有带 style 的 section/div (微信排版的核心容器)
     for tag in ['section', 'div', 'blockquote']:
         for s in soup.find_all(tag, style=True):
@@ -52,7 +53,7 @@ def fetch_wechat_styles(url_or_path):
                 "text_preview": s.get_text(strip=True)[:30]
             })
             if len(style_blocks) >= 20: break
-            
+
     # 2. 查找标题
     for h_tag in ['h1', 'h2', 'h3']:
         for h in soup.find_all(h_tag, style=True):
@@ -61,7 +62,7 @@ def fetch_wechat_styles(url_or_path):
                 "style": h['style'],
                 "text_preview": h.get_text(strip=True)
             })
-                
+
     return style_blocks
 
 def analyze_with_ai(style_blocks):
@@ -80,20 +81,20 @@ def analyze_with_ai(style_blocks):
 """
     for i, block in enumerate(style_blocks):
         prompt += f"\n[{i+1}] Tag: {block['tag']}\nStyle: {block['style']}\n"
-        
+
     return prompt
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="公众号主题克隆助手")
     parser.add_argument("url", help="微信公众号文章链接")
     parser.add_argument("--output", "-o", help="保存提取结果的文件路径")
-    
+
     args = parser.parse_args()
-    
+
     blocks = fetch_wechat_styles(args.url)
     if blocks:
         ai_prompt = analyze_with_ai(blocks)
-        
+
         if args.output:
             Path(args.output).write_text(ai_prompt, encoding="utf-8")
             print(f"分析请求已保存至: {args.output}")

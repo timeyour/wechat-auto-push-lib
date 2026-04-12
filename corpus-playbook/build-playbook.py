@@ -14,11 +14,10 @@ Example:
   python build-playbook.py list    # Show all existing playbooks
 """
 
-import os
-import sys
 import json
-import time
 import re
+import sys
+import time
 from pathlib import Path
 
 BASE_DIR = Path(__file__).parent.resolve()

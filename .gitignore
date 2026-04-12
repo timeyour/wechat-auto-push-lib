@@ -173,3 +173,4 @@ corpus-playbook/corpus/
 corpus-playbook/_debug*.py
 corpus-playbook/_check*.py
 corpus-playbook/_fix*.py
+.coverage

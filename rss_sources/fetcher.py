@@ -4,21 +4,18 @@ RSS 多源抓取模块
 """
 from __future__ import annotations
 
-import feedparser
 import hashlib
 import json
 import logging
-import re
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from pathlib import Path
-from typing import Optional
 
+import feedparser
 import requests
 from bs4 import BeautifulSoup
 from readability import Document
 
-from config import RSS_SOURCES, MAX_ARTICLES_PER_SOURCE, DATA_DIR
+from config import DATA_DIR, MAX_ARTICLES_PER_SOURCE, RSS_SOURCES
 
 logger = logging.getLogger(__name__)
 

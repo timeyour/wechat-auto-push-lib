@@ -6,11 +6,10 @@ fetch_twitter_rss.py
   python fetch_twitter_rss.py
 """
 
-import sys
-import json
-import re
 import datetime
 import html
+import json
+import re
 from pathlib import Path
 
 BASE_DIR = Path(__file__).parent.resolve()
@@ -39,7 +38,7 @@ def fetch_url_text(url: str) -> str | None:
         pass
 
     try:
-        from urllib.request import urlopen, Request
+        from urllib.request import Request, urlopen
         req = Request(url, headers={"User-Agent": "Mozilla/5.0"})
         with urlopen(req, timeout=FETCH_TIMEOUT) as resp:
             return resp.read().decode("utf-8", errors="replace")

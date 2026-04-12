@@ -1,18 +1,17 @@
 """
 content_processor 模块单元测试
 """
-import pytest
-from pathlib import Path
-from unittest.mock import patch, MagicMock
-
 # 确保可以导入项目模块
 import sys
+from pathlib import Path
+from unittest.mock import patch
+
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from content_processor.processor import (
+    build_final_content,
     clean_html,
     extract_text_summary,
-    build_final_content,
     get_first_image_url,
 )
 

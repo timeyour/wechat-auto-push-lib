@@ -5,9 +5,10 @@
 - 绿色(#07c160)作为强调色
 - 清晰的编号章节结构
 """
+from pathlib import Path
+
 import markdown
 import requests
-from pathlib import Path
 from bs4 import BeautifulSoup
 
 # 导入项目模块
@@ -19,7 +20,7 @@ def upload_local_image(publisher: WeChatPublisher, local_path: Path) -> str:
     token = publisher.token_manager.get_access_token()
     with open(local_path, 'rb') as f:
         resp = requests.post(
-            f"https://api.weixin.qq.com/cgi-bin/media/uploadimg",
+            "https://api.weixin.qq.com/cgi-bin/media/uploadimg",
             params={"access_token": token},
             files={"media": (local_path.name, f)},
             timeout=60,
@@ -350,7 +351,7 @@ def publish_article_aiden_style(
     )
 
     if draft_id:
-        print(f"✅ 草稿创建成功!")
+        print("✅ 草稿创建成功!")
         print(f"📋 草稿ID: {draft_id}")
         return draft_id
     else:

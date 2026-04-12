@@ -9,17 +9,16 @@
 4. 微信推送 (Draft Creation)
 5. 记忆引擎记录 (journal.jsonl)
 """
-import os
-import re
-import sys
 import argparse
+import re
 import subprocess
-from pathlib import Path
+import sys
 from datetime import datetime, timezone
+from pathlib import Path
 
+from config import BASE_DIR
 from content_processor.processor import process_markdown
 from img_fallback import generate_cover
-from config import BASE_DIR
 
 try:
     from memory_engine import journal
@@ -62,23 +61,23 @@ def main():
     parser.add_argument("markdown_file", help="Markdown 文件路径")
     parser.add_argument("--style", default="tech", help="封面风格 (tech/warm/minimal)")
     parser.add_argument("--author", help="作者名")
-    
+
     args = parser.parse_args()
     md_path = Path(args.markdown_file)
-    
+
     if not md_path.exists():
         print(f"错误: 文件不存在 {args.markdown_file}")
         sys.exit(1)
-        
+
     print(f"🚀 开始处理文章: {md_path.name}")
-    
+
     # 1. 语义分析与增强
     print("Step 1: 语义增强 (Dialogue / Gallery / CJK Spacing)...")
     original_text = md_path.read_text(encoding="utf-8")
     enhanced_text = process_markdown(original_text)
     enhanced_path = md_path.parent / f"{md_path.stem}_enhanced.md"
     enhanced_path.write_text(enhanced_text, encoding="utf-8")
-    
+
     # 2. 封面生成
     print("Step 2: 生成封面图 (Visual Hook)...")
     cover_res = generate_cover(md_path.stem, style=args.style)
@@ -88,7 +87,7 @@ def main():
     else:
         thumb_path = cover_res["path"]
         print(f"✅ 封面已就绪: {thumb_path}")
-        
+
     # 3. 排版渲染 (需要 Node.js 和 wenyan_render.mjs)
     print("Step 3: WenYan 排版渲染...")
     html_path = md_path.parent / f"{md_path.stem}.html"
@@ -119,7 +118,7 @@ def main():
         publish_cmd.extend(["--author", args.author])
     if thumb_path:
         publish_cmd.extend(["--thumb-path", thumb_path])
-        
+
     success, output = run_command(publish_cmd)
     if success:
         print("\n" + "="*40)
@@ -167,7 +166,7 @@ def main():
                     {"phase": "publish", "status": "done"},
                 ],
             )
-            print(f"📓 已记录到 journal.jsonl")
+            print("📓 已记录到 journal.jsonl")
     else:
         print("发布失败")
         if JOURNAL_AVAILABLE:

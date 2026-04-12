@@ -380,4 +380,4 @@ if __name__ == "__main__":
         import pprint
         pprint.pprint(top_titles(n))
     else:
-        print(f"用法: python memory_engine.py [summary|skills|themes|export|top]")
+        print("用法: python memory_engine.py [summary|skills|themes|export|top]")
