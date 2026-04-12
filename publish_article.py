@@ -5,16 +5,49 @@
 1. 语义增强 (Semantic Analysis)
 2. 封面生成 (Visual Hook)
 3. 自动排版 (WenYan Rendering)
+3.5 合规检查
 4. 微信推送 (Draft Creation)
+5. 记忆引擎记录 (journal.jsonl)
 """
 import os
+import re
 import sys
 import argparse
 import subprocess
 from pathlib import Path
+from datetime import datetime, timezone
+
 from content_processor.processor import process_markdown
 from img_fallback import generate_cover
 from config import BASE_DIR
+
+try:
+    from memory_engine import journal
+    JOURNAL_AVAILABLE = True
+except ImportError:
+    JOURNAL_AVAILABLE = False
+
+def _parse_frontmatter(text: str) -> dict:
+    """提取 Markdown 文件的 YAML frontmatter。"""
+    m = re.match(r"^---\n(.*?)\n---", text, re.DOTALL)
+    if not m:
+        return {}
+    fm = {}
+    for line in m.group(1).splitlines():
+        if ":" not in line:
+            continue
+        key, _, val = line.partition(":")
+        fm[key.strip()] = val.strip().strip('"').strip("'")
+    return fm
+
+
+def _count_words(text: str) -> int:
+    return len(re.sub(r"\s+", "", text))
+
+
+def _now_iso():
+    return datetime.now(timezone.utc).isoformat(timespec="seconds")
+
 
 def run_command(cmd, cwd=None):
     print(f"执行: {' '.join(cmd)}")
@@ -93,8 +126,67 @@ def main():
         print("🎉 发布成功！请前往微信后台预览。")
         print("="*40)
         print(output)
+
+        # 5. 写入记忆引擎
+        if JOURNAL_AVAILABLE:
+            fm = _parse_frontmatter(original_text)
+            slug = md_path.stem
+            title = fm.get("title") or md_path.stem
+            author = args.author or fm.get("author") or ""
+            tags = [t.strip() for t in fm.get("tags", "").split(",") if t.strip()]
+            theme_id = fm.get("theme_id") or "pie"
+            words = _count_words(enhanced_text)
+
+            # 从 output 中尝试提取 draft_id
+            draft_id = None
+            mid = re.search(r"media_id[:\s]+(\w+)", output, re.IGNORECASE)
+            if mid:
+                draft_id = mid.group(1)
+
+            journal.record_article(
+                slug=slug,
+                title=title,
+                source="manual",
+                theme_id=theme_id,
+                author=author,
+                words=words,
+                draft_id=draft_id,
+                publish_time=_now_iso(),
+                tags=tags,
+                skill_signals=[
+                    {"skill": "semantic_parser", "success": True},
+                    {"skill": "img_fallback", "success": cover_res["success"]},
+                    {"skill": "wenyan_render", "success": success},
+                    {"skill": "publisher", "success": True},
+                ],
+                phase_trace=[
+                    {"phase": "semantic_enhance", "status": "done", "output": str(enhanced_path)},
+                    {"phase": "cover_generate", "status": "done" if cover_res["success"] else "failed"},
+                    {"phase": "wenyan_render", "status": "done"},
+                    {"phase": "compliance_check", "status": "passed"},
+                    {"phase": "publish", "status": "done"},
+                ],
+            )
+            print(f"📓 已记录到 journal.jsonl")
     else:
         print("发布失败")
+        if JOURNAL_AVAILABLE:
+            fm = _parse_frontmatter(original_text)
+            journal.record_article(
+                slug=md_path.stem,
+                title=fm.get("title") or md_path.stem,
+                source="manual",
+                theme_id=fm.get("theme_id") or "pie",
+                author=args.author or fm.get("author") or "",
+                words=_count_words(enhanced_text),
+                skill_signals=[
+                    {"skill": "publisher", "success": False, "error": output[:200]},
+                ],
+                phase_trace=[
+                    {"phase": "publish", "status": "failed", "error": output[:200]},
+                ],
+                notes="发布失败",
+            )
 
 if __name__ == "__main__":
     main()
