@@ -147,7 +147,9 @@ cp .env.example .env    # 编辑填入 AppID / AppSecret
 | `python main.py` | 定时模式（每 6 小时自动运行） |
 | `python main.py --once` | 立即执行一次 |
 | `python main.py --dry` | 试运行（只抓取，不创建草稿） |
+| `python publish_article.py article.md` | 一键发布已有文章（封面+排版+合规+推送） |
 | `python main.py --list` | 查看草稿箱现有内容 |
+| `python main.py --web` | 打开本地浏览器面板，直接查看配置状态和主题预览 |
 
 ---
 
@@ -210,6 +212,54 @@ mp.weixin.qq.com 草稿箱（手动群发）
 - 草稿创建后需登录 mp.weixin.qq.com 手动点击「群发」
 - `wechat_v2.py` 只是本地桌面自动化示例；若要使用，请额外安装 `pyautogui` 和 `pyperclip`
 - 飞书脚本默认是可选的运营记录增强，不配置 `.env` 中的飞书参数也不影响主流程
+
+---
+
+## 本地浏览器面板（试用版）
+
+第一次上手时，推荐先运行：
+
+```bash
+python main.py --web
+```
+
+它会自动打开本地浏览器页面，第一版先解决这几件事：
+
+- 把必填配置和可选配置分开展示
+- 直接把常用配置保存到 `.env`
+- 看当前主题状态
+- 对比不同 wenyan 主题的实际排版效果
+- 贴一小段草稿进去看当前主题大预览
+
+建议顺序：
+
+1. 先填公众号 `AppID / AppSecret`
+2. 再选一个顺眼的主题
+3. 最后回到命令行跑 `python main.py --dry`
+
+---
+
+## 两条路线
+
+本库支持两条不同的使用路线，根据场景选一个：
+
+### 路线 A：原创文章（走 SOP）
+
+从 [wechat-ops-sop](https://github.com/timeyour/wechat-ops-sop) 的 Phase 0 到 Phase 6 完整执行。
+
+适合有完整发布时间窗口、认真做一期内容的情况。
+
+### 路线 B：已有稿子（直接排版发布）
+
+稿子已经有了，不需要走 SOP，直接一键完成排版和推送：
+
+```bash
+python publish_article.py your_article.md [--style tech]
+```
+
+流程：语义增强 → 封面图生成 → WenYan 排版 → 合规检查 → 微信草稿箱
+
+适合：会议录音整理稿、视频字幕稿、别人写好的草稿、RSS 清洗后的内容。
 
 ---
 

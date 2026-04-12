@@ -14,6 +14,7 @@ import subprocess
 from pathlib import Path
 from content_processor.processor import process_markdown
 from img_fallback import generate_cover
+from config import BASE_DIR
 
 def run_command(cmd, cwd=None):
     print(f"执行: {' '.join(cmd)}")
@@ -62,7 +63,22 @@ def main():
     if not success:
         print("渲染失败，请确保已安装 Node.js 和 wenyan-cli")
         sys.exit(1)
-        
+
+    # 3.5: 合规检查（BLOCKER 级别问题直接终止）
+    print("Step 3.5: 合规检查...")
+    check_result = subprocess.run(
+        [sys.executable, "compliance_check.py", str(md_path), "--strict"],
+        cwd=BASE_DIR,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+    if check_result.stdout:
+        print(check_result.stdout)
+    if "BLOCKER" in check_result.stdout or "BLOCKER" in (check_result.stderr or ""):
+        print("❌ 存在 BLOCKER 级别合规问题，终止发布。请先修复后再试。")
+        sys.exit(1)
+
     # 4. 发布草稿
     print("Step 4: 推送到微信草稿箱...")
     publish_cmd = [sys.executable, "wechat_api/publisher.py", "--html", str(html_path)]
